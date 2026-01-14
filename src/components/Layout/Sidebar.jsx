@@ -109,7 +109,7 @@ const Sidebar = () => {
               <p className="font-medium">Admin User</p>
               <p className="text-sm text-gray-400">Super Admin</p>
             </div>
-          )}
+          )} 
           <button
             onClick={handleLogout}
             className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
