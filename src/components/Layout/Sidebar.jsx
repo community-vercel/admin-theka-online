@@ -1,14 +1,11 @@
 // src/components/Layout/Sidebar.jsx
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   HiHome,
   HiUsers,
   HiCheckCircle,
   HiCog,
-  HiChartBar,
-  HiMenu,
-  HiX,
   HiLogout,
   HiChevronRight,
   HiChevronLeft
@@ -20,6 +17,18 @@ import toast from 'react-hot-toast';
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
+
+  // Update main content margin when sidebar collapses/expands
+  useEffect(() => {
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+      if (isCollapsed) {
+        mainContent.style.marginLeft = '5rem'; // 20 * 0.25rem = 5rem
+      } else {
+        mainContent.style.marginLeft = '16rem'; // 64 * 0.25rem = 16rem
+      }
+    }
+  }, [isCollapsed]);
 
   const menuItems = [
     { path: '/dashboard', icon: <HiHome />, label: 'Dashboard' },
@@ -39,7 +48,16 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className={`bg-gray-900 text-white transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'} flex flex-col`}>
+    <aside className={`
+      bg-gray-900 text-white 
+      h-screen /* Full viewport height */
+      fixed left-0 top-0 /* Fixed position */
+      z-40 /* Above content but below modals */
+      transition-all duration-300 
+      ${isCollapsed ? 'w-20' : 'w-64'}
+      flex flex-col
+      shadow-xl /* Add shadow for depth */
+    `}>
       {/* Sidebar Header */}
       <div className="p-4 border-b border-gray-800 flex items-center justify-between">
         {!isCollapsed && (
@@ -53,13 +71,14 @@ const Sidebar = () => {
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+          title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
         >
           {isCollapsed ? <HiChevronRight className="h-5 w-5" /> : <HiChevronLeft className="h-5 w-5" />}
         </button>
       </div>
 
       {/* Navigation Menu */}
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {menuItems.map((item) => (
           <NavLink
             key={item.path}
@@ -71,6 +90,7 @@ const Sidebar = () => {
                 : 'text-gray-300 hover:bg-gray-800 hover:text-white'
               }
             `}
+            title={isCollapsed ? item.label : ''}
           >
             <span className="text-xl">{item.icon}</span>
             {!isCollapsed && <span className="font-medium">{item.label}</span>}
