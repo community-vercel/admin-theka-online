@@ -8,7 +8,8 @@ import {
   HiCog,
   HiLogout,
   HiChevronRight,
-  HiChevronLeft
+  HiChevronLeft,
+  HiPhotograph
 } from 'react-icons/hi';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../services/firebase';
@@ -34,6 +35,7 @@ const Sidebar = () => {
     { path: '/dashboard', icon: <HiHome />, label: 'Dashboard' },
     { path: '/users', icon: <HiUsers />, label: 'Users' },
     { path: '/verification', icon: <HiCheckCircle />, label: 'Verification' },
+    { path: '/ads', icon: <HiPhotograph />, label: 'Ads' },
     { path: '/settings', icon: <HiCog />, label: 'Settings' },
   ];
 

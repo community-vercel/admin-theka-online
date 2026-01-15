@@ -10,6 +10,8 @@ import Verification from './pages/Verification';
 import VerificationDetails from './pages/Verification/VerificationDetails';
 import Settings from './pages/Settings/index';
 import Layout from './components/Layout/Layout';
+import Ads from './pages/Ads';
+
 
 function App() {
   return (
@@ -48,6 +50,8 @@ function App() {
           {/* <Route path="users/:userId" element={<UserDetails />} /> */}
           <Route path="verification" element={<Verification />} />
           <Route path="verification/:requestId" element={<VerificationDetails />} />
+          <Route path="/ads" element={<Ads />} />
+
           <Route path="settings" element={<Settings />} />
         </Route>
         
