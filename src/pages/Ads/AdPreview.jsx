@@ -23,9 +23,9 @@ const AdPreview = ({ ad }) => {
       onClick={handleClick}
       title={ad.link ? "Click to visit" : ad.title}
     >
-      {/* Mobile Ad Container (40×20 pixels) */}
+      {/* Mobile Ad Container (300×50 pixels) */}
       <div 
-        className="w-40 h-20 rounded-lg shadow-md flex flex-col items-center justify-center overflow-hidden p-2 transition-transform group-hover:scale-105"
+        className="w-auto h-auto rounded-lg shadow-md flex flex-col items-center justify-center overflow-hidden p-2 transition-transform group-hover:scale-105"
         style={{ 
           backgroundColor: ad.bgColor,
           color: ad.textColor

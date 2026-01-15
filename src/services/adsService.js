@@ -35,8 +35,8 @@ export const adsService = {
           textColor: data.textColor || '#FFFFFF', // Default white
           isActive: data.isActive !== false,
           position: data.position || 'mobile',
-          width: data.width || 40, // Fixed width 40px
-          height: data.height || 20, // Fixed height 20px
+          width: data.width || 300, // Fixed width 300px
+          height: data.height || 50, // Fixed height 50px
           clicks: data.clicks || 0,
           impressions: data.impressions || 0,
           createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(data.createdAt),
@@ -63,8 +63,8 @@ export const adsService = {
         textColor: adData.textColor,
         isActive: adData.isActive !== false,
         position: adData.position || 'mobile',
-        width: 40, // Fixed width for mobile ads
-        height: 20, // Fixed height for mobile ads
+        width: 300, // Fixed width for mobile ads
+        height: 50, // Fixed height for mobile ads
         clicks: 0,
         impressions: 0,
         createdAt: new Date().toISOString(),

@@ -119,11 +119,11 @@ const AdModal = ({ ad, onClose, onSave }) => {
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="font-medium text-gray-700 mb-3 flex items-center space-x-2">
                 <HiInformationCircle className="h-5 w-5 text-blue-600" />
-                <span>Ad Preview (40×20 pixels)</span>
+                <span>Ad Preview (300×50 pixels)</span>
               </h3>
               <div className="flex items-center justify-center">
                 <div 
-                  className="w-40 h-20 rounded-lg shadow-md flex flex-col items-center justify-center overflow-hidden p-2"
+                  className="w-300 h-50 rounded-lg shadow-md flex flex-col items-center justify-center overflow-hidden p-2"
                   style={{ 
                     backgroundColor: formData.bgColor,
                     color: formData.textColor
@@ -143,7 +143,7 @@ const AdModal = ({ ad, onClose, onSave }) => {
                 </div>
               </div>
               <p className="text-xs text-gray-500 mt-2 text-center">
-                This is how your 40×20 pixel ad will appear on mobile
+                This is how your 300×50 pixel ad will appear on mobile
               </p>
             </div>
 
@@ -177,7 +177,7 @@ const AdModal = ({ ad, onClose, onSave }) => {
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  className="input-field w-full h-20 resize-none"
+                  className="input-field w-full h-50 resize-none"
                   placeholder="Enter ad description"
                   required
                   disabled={loading}

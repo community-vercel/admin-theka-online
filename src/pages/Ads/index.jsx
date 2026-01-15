@@ -144,7 +144,7 @@ const Ads = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Mobile Ads Management</h1>
-          <p className="text-gray-600">Create and manage 40×20 pixel mobile banner ads</p>
+          <p className="text-gray-600">Create and manage 300×50 pixel mobile banner ads</p>
         </div>
         <div className="flex items-center space-x-3">
           <button 
