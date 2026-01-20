@@ -14,7 +14,8 @@ import {
   HiDocumentReport,
   HiCollection,
   HiCash,
-  HiShoppingCart
+  HiShoppingCart,
+  HiDatabase
 } from 'react-icons/hi';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../services/firebase';
@@ -31,6 +32,8 @@ const Sidebar = ({ isMobile, onItemClick, isCollapsed = false, onToggleCollapse 
     { path: '/verification', icon: <HiCheckCircle />, label: 'Verification', badge: '' },
     { path: '/ads', icon: <HiPhotograph />, label: 'Ads Management' },
     { path: '/settings', icon: <HiCog />, label: 'Settings' },
+      { path: '/db/health', icon: <HiDatabase />, label: 'DB Health' }, // Add this line
+
   ];
 
   const handleLogout = async () => {

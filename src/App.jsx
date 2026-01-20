@@ -11,6 +11,7 @@ import VerificationDetails from './pages/Verification/VerificationDetails';
 import Settings from './pages/Settings/index';
 import Layout from './components/Layout/Layout';
 import Ads from './pages/Ads';
+import DBHealth from './pages/DBHealth';
 
 
 function App() {
@@ -53,6 +54,8 @@ function App() {
           <Route path="/ads" element={<Ads />} />
 
           <Route path="settings" element={<Settings />} />
+          <Route path="/db/health" element={<DBHealth />} />
+
         </Route>
         
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
