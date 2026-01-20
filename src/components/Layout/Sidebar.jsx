@@ -52,6 +52,9 @@ const Sidebar = ({ isMobile, onItemClick, isCollapsed = false, onToggleCollapse 
   // On mobile, sidebar is always expanded when open
   const shouldShowLabels = !isCollapsed || isMobile;
 
+  // Your logo URL
+  const logoUrl = "https://play-lh.googleusercontent.com/UOGpk5_SOc9SfmhOt2iHKULwVVlRzDwIZzTM0XXrkpfbXn6YyugxWk2lA-Y6Y-WkriF3dFBk7_hqjZz2NbMh=w240-h480-rw";
+
   return (
     <aside className={`
       bg-gray-900 text-white 
@@ -63,14 +66,39 @@ const Sidebar = ({ isMobile, onItemClick, isCollapsed = false, onToggleCollapse 
       flex flex-col
       shadow-2xl
     `}>
-      {/* Sidebar Header */}
+      {/* Sidebar Header with Logo */}
       <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-        {shouldShowLabels && (
+        {shouldShowLabels ? (
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="font-bold text-white">T</span>
+            {/* Logo Container */}
+            <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg overflow-hidden">
+              {/* Logo Image */}
+              <img 
+                src={logoUrl} 
+                alt="Theka Online Logo" 
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.parentElement.innerHTML = '<span class="font-bold text-white">T</span>';
+                }}
+              />
             </div>
             <h1 className="text-xl font-bold">Theka Online</h1>
+          </div>
+        ) : (
+          // Collapsed Logo View
+          <div className="flex items-center justify-center w-full">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg overflow-hidden">
+              <img 
+                src={logoUrl} 
+                alt="Theka Online Logo" 
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.parentElement.innerHTML = '<span class="font-bold text-white text-sm">T</span>';
+                }}
+              />
+            </div>
           </div>
         )}
         
@@ -123,8 +151,17 @@ const Sidebar = ({ isMobile, onItemClick, isCollapsed = false, onToggleCollapse 
       {/* User Profile & Logout */}
       <div className="p-4 border-t border-gray-800 bg-gray-850">
         <div className={`flex items-center ${shouldShowLabels ? 'space-x-3' : 'justify-center'}`}>
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-            <span className="font-bold text-white">A</span>
+          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+            {/* User Avatar with fallback to initials */}
+            <img 
+              src="https://ui-avatars.com/api/?name=Admin+User&background=random&color=fff&bold=true" 
+              alt="Admin User" 
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.parentElement.innerHTML = '<span class="font-bold text-white">A</span>';
+              }}
+            />
           </div>
           
           {shouldShowLabels && (
