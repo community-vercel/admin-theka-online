@@ -1,6 +1,6 @@
 // src/components/Layout/Sidebar.jsx
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import {
   HiHome,
   HiUsers,
@@ -9,33 +9,27 @@ import {
   HiLogout,
   HiChevronRight,
   HiChevronLeft,
-  HiPhotograph
+  HiPhotograph,
+  HiChartBar,
+  HiDocumentReport,
+  HiCollection,
+  HiCash,
+  HiShoppingCart
 } from 'react-icons/hi';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../services/firebase';
 import toast from 'react-hot-toast';
 
-const Sidebar = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+const Sidebar = ({ isMobile, onItemClick, isCollapsed = false, onToggleCollapse }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Update main content margin when sidebar collapses/expands
-  useEffect(() => {
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-      if (isCollapsed) {
-        mainContent.style.marginLeft = '5rem'; // 20 * 0.25rem = 5rem
-      } else {
-        mainContent.style.marginLeft = '16rem'; // 64 * 0.25rem = 16rem
-      }
-    }
-  }, [isCollapsed]);
-
+  // Extended menu items for full sidebar
   const menuItems = [
     { path: '/dashboard', icon: <HiHome />, label: 'Dashboard' },
-    { path: '/users', icon: <HiUsers />, label: 'Users' },
-    { path: '/verification', icon: <HiCheckCircle />, label: 'Verification' },
-    { path: '/ads', icon: <HiPhotograph />, label: 'Ads' },
+    { path: '/users', icon: <HiUsers />, label: 'Users Management' },
+    { path: '/verification', icon: <HiCheckCircle />, label: 'Verification', badge: '' },
+    { path: '/ads', icon: <HiPhotograph />, label: 'Ads Management' },
     { path: '/settings', icon: <HiCog />, label: 'Settings' },
   ];
 
@@ -49,73 +43,102 @@ const Sidebar = () => {
     }
   };
 
+  const handleItemClick = () => {
+    if (onItemClick) {
+      onItemClick();
+    }
+  };
+
+  // On mobile, sidebar is always expanded when open
+  const shouldShowLabels = !isCollapsed || isMobile;
+
   return (
     <aside className={`
       bg-gray-900 text-white 
-      h-screen /* Full viewport height */
-      fixed left-0 top-0 /* Fixed position */
-      z-40 /* Above content but below modals */
+      h-screen
+      fixed left-0 top-0
+      z-40
       transition-all duration-300 
-      ${isCollapsed ? 'w-20' : 'w-64'}
+      ${isMobile ? 'w-72' : isCollapsed ? 'w-20' : 'w-64'}
       flex flex-col
-      shadow-xl /* Add shadow for depth */
+      shadow-2xl
     `}>
       {/* Sidebar Header */}
       <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-        {!isCollapsed && (
+        {shouldShowLabels && (
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="font-bold">T</span>
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <span className="font-bold text-white">T</span>
             </div>
             <h1 className="text-xl font-bold">Theka Online</h1>
           </div>
         )}
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-          title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-        >
-          {isCollapsed ? <HiChevronRight className="h-5 w-5" /> : <HiChevronLeft className="h-5 w-5" />}
-        </button>
+        
+        {/* Collapse Toggle (Desktop only) */}
+        {!isMobile && (
+          <button
+            onClick={onToggleCollapse}
+            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            aria-label={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
+            {isCollapsed ? <HiChevronRight className="h-5 w-5" /> : <HiChevronLeft className="h-5 w-5" />}
+          </button>
+        )}
       </div>
 
       {/* Navigation Menu */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 p-2 md:p-4 space-y-1 overflow-y-auto">
         {menuItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
+            onClick={handleItemClick}
             className={({ isActive }) => `
-              flex items-center space-x-3 p-3 rounded-lg transition-colors
+              flex items-center justify-between space-x-3 p-3 rounded-lg transition-colors
               ${isActive 
                 ? 'bg-blue-600 text-white' 
                 : 'text-gray-300 hover:bg-gray-800 hover:text-white'
               }
             `}
-            title={isCollapsed ? item.label : ''}
+            title={!shouldShowLabels ? item.label : ''}
           >
-            <span className="text-xl">{item.icon}</span>
-            {!isCollapsed && <span className="font-medium">{item.label}</span>}
+            <div className="flex items-center space-x-3 min-w-0">
+              <span className="text-xl flex-shrink-0">{item.icon}</span>
+              {shouldShowLabels && (
+                <span className="font-medium truncate">{item.label}</span>
+              )}
+            </div>
+            
+            {/* Badge */}
+            {item.badge && shouldShowLabels && (
+              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                {item.badge}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>
 
       {/* User Profile & Logout */}
-      <div className="p-4 border-t border-gray-800">
-        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'}`}>
-          <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-            <span className="font-bold">A</span>
+      <div className="p-4 border-t border-gray-800 bg-gray-850">
+        <div className={`flex items-center ${shouldShowLabels ? 'space-x-3' : 'justify-center'}`}>
+          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+            <span className="font-bold text-white">A</span>
           </div>
-          {!isCollapsed && (
-            <div className="flex-1">
-              <p className="font-medium">Admin User</p>
-              <p className="text-sm text-gray-400">Super Admin</p>
+          
+          {shouldShowLabels && (
+            <div className="flex-1 min-w-0">
+              <p className="font-medium truncate">Admin User</p>
+              <p className="text-sm text-gray-400 truncate">Super Admin</p>
             </div>
-          )} 
+          )}
+          
           <button
             onClick={handleLogout}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-800 rounded-lg transition-colors flex-shrink-0"
             title="Logout"
+            aria-label="Logout"
           >
             <HiLogout className="h-5 w-5" />
           </button>
