@@ -89,7 +89,8 @@ const Dashboard = () => {
     }
   };
 
-  const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+  // Chart Colors - Premium Palette
+  const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899'];
 
   // Calculate verification percentage
   const verificationPercentage = stats.totalProviders > 0
@@ -118,21 +119,34 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">Dashboard Overview</h1>
-          <p className="text-gray-500 mt-1 text-sm sm:text-base">Welcome back! Real-time insights from your platform.</p>
-        </div>
-        <div className="flex items-center space-x-2 text-sm text-gray-500 bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm self-start md:self-auto">
-          <HiCalendar className="h-4 w-4 text-blue-500" />
-          <span>{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+    <div className="space-y-8 pb-10">
+      {/* Header Section - Glass Style */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 to-purple-700 p-8 sm:p-10 shadow-xl shadow-indigo-200 dark:shadow-none">
+        {/* Decorative background elements */}
+        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl"></div>
+        <div className="absolute -bottom-10 left-10 h-32 w-32 rounded-full bg-indigo-400/20 blur-2xl"></div>
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+              Dashboard Overview
+            </h1>
+            <p className="mt-2 text-indigo-100/80 text-sm sm:text-base font-medium max-w-md">
+              Welcome back! Here's what's happening on your platform today.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm px-4 py-2.5 rounded-2xl border border-white/20 self-start md:self-auto">
+            <HiCalendar className="h-5 w-5 text-indigo-200" />
+            <span className="text-white text-sm font-semibold">
+              {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      {/* Stats Grid - Using premium spacing */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         <StatsCard
           title="Total Users"
           value={stats.totalUsers.toLocaleString()}
@@ -166,26 +180,138 @@ const Dashboard = () => {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Registration Trend Chart */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* User Growth Chart */}
+        <div className="card-premium p-6 sm:p-8">
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Registration Trend</h3>
-              <p className="text-gray-600 text-sm">Last 7 days</p>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">User Growth</h3>
+              <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">Last 7 Months</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">
+                <HiCalendar className="h-3 w-3" />
+                Active
+              </span>
             </div>
           </div>
-          <div className="h-80">
+
+          <div className="h-[350px] w-full mt-4">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={userGrowthData}>
+                <defs>
+                  <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#94a3b8', fontSize: 12 }}
+                  dy={10}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#94a3b8', fontSize: 12 }}
+                />
+                <Tooltip
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="users"
+                  stroke="#6366f1"
+                  strokeWidth={3}
+                  fillOpacity={1}
+                  fill="url(#colorUsers)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* User Distribution Chart */}
+        <div className="card-premium p-6 sm:p-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">User Distribution</h3>
+              <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">User Types</p>
+            </div>
+          </div>
+
+          <div className="h-[350px] w-full flex flex-col sm:flex-row items-center justify-center">
+            <div className="flex-1 w-full h-[300px] sm:h-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={userTypeData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={80}
+                    outerRadius={110}
+                    paddingAngle={8}
+                    dataKey="value"
+                    stroke="none"
+                  >
+                    {userTypeData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="flex flex-col gap-4 min-w-[140px] mt-6 sm:mt-0 sm:ml-8">
+              {userTypeData.map((item, index) => (
+                <div key={item.name} className="flex items-center justify-between group">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                    <span className="text-sm font-medium text-slate-600 dark:text-slate-300">{item.name}</span>
+                  </div>
+                  <span className="text-sm font-bold text-slate-900 dark:text-white ml-4">{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Second Row Charts (Existing charts adapted to new card style) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Registration Trend Chart */}
+        <div className="card-premium p-6 sm:p-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Registration Trend</h3>
+              <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">Last 7 days</p>
+            </div>
+          </div>
+          <div className="h-[350px] w-full mt-4">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={registrationTrend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis dataKey="day" stroke="#6B7280" />
-                <YAxis stroke="#6B7280" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis
+                  dataKey="day"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#94a3b8', fontSize: 12 }}
+                  dy={10}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#94a3b8', fontSize: 12 }}
+                />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: 'white',
-                    border: '1px solid #E5E7EB',
-                    borderRadius: '0.5rem'
+                    borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
                   }}
                   formatter={(value, name) => [
                     value,
@@ -193,17 +319,17 @@ const Dashboard = () => {
                       name === 'providers' ? 'Service Providers' : 'Total Users'
                   ]}
                 />
-                <Legend />
+                <Legend wrapperStyle={{ paddingTop: '20px' }} />
                 <Bar
                   dataKey="customers"
                   name="Customers"
-                  fill="#3B82F6"
+                  fill="#6366f1" // Updated color
                   radius={[4, 4, 0, 0]}
                 />
                 <Bar
                   dataKey="providers"
                   name="Service Providers"
-                  fill="#10B981"
+                  fill="#10b981" // Updated color
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>
@@ -212,15 +338,15 @@ const Dashboard = () => {
         </div>
 
         {/* Service Category Distribution */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-6">
+        <div className="card-premium p-6 sm:p-8">
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Service Categories</h3>
-              <p className="text-gray-600 text-sm">Provider distribution by category</p>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Service Categories</h3>
+              <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">Provider distribution by category</p>
             </div>
-            <HiBriefcase className="h-6 w-6 text-green-500" />
+            <HiBriefcase className="h-6 w-6 text-emerald-500" /> {/* Updated color */}
           </div>
-          <div className="h-80">
+          <div className="h-[350px] w-full mt-4">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -229,9 +355,10 @@ const Dashboard = () => {
                   cy="50%"
                   labelLine={false}
                   label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
+                  outerRadius={110} // Increased outerRadius for better visibility
                   fill="#8884d8"
                   dataKey="providers"
+                  paddingAngle={5} // Added padding for separation
                 >
                   {categoryDistribution.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -240,54 +367,57 @@ const Dashboard = () => {
                 <Tooltip
                   formatter={(value) => [value, 'Providers']}
                   contentStyle={{
-                    backgroundColor: 'white',
-                    border: '1px solid #E5E7EB',
-                    borderRadius: '0.5rem'
+                    borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
                   }}
                 />
+                <Legend wrapperStyle={{ paddingTop: '20px' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
       </div>
 
-      {/* Second Row Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Third Row Charts (Existing charts adapted to new card style) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* City Distribution */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-6">
+        <div className="card-premium p-6 sm:p-8">
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">City Distribution</h3>
-              <p className="text-gray-600 text-sm">Top cities by user count</p>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">City Distribution</h3>
+              <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">Top cities by user count</p>
             </div>
           </div>
-          <div className="h-80">
+          <div className="h-[350px] w-full mt-4">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={cityDistribution}
                 layout="vertical"
                 margin={{ top: 20, right: 30, left: 100, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis type="number" stroke="#6B7280" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis
+                  type="number"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#94a3b8', fontSize: 12 }}
+                />
                 <YAxis
                   type="category"
                   dataKey="name"
-                  stroke="#6B7280"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#94a3b8', fontSize: 12 }}
                   width={90}
-                  tick={{ fontSize: 12 }}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: 'white',
-                    border: '1px solid #E5E7EB',
-                    borderRadius: '0.5rem'
+                    borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
                   }}
                   formatter={(value) => [value, 'Users']}
                 />
                 <Bar
                   dataKey="users"
-                  fill="#8B5CF6"
+                  fill="#6366f1" // Updated color
                   radius={[0, 4, 4, 0]}
                 />
               </BarChart>
@@ -296,11 +426,11 @@ const Dashboard = () => {
         </div>
 
         {/* Verification Status */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-6">
+        <div className="card-premium p-6 sm:p-8">
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Verification Status</h3>
-              <p className="text-gray-600 text-sm">Service provider verification overview</p>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Verification Status</h3>
+              <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">Service provider verification overview</p>
             </div>
             <div className="flex items-center space-x-2">
               {verificationDistribution.map((item, index) => (
@@ -314,7 +444,7 @@ const Dashboard = () => {
               ))}
             </div>
           </div>
-          <div className="h-80">
+          <div className="h-[350px] w-full mt-4">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -389,8 +519,8 @@ const Dashboard = () => {
                       <div className="flex items-center">
                         <div className="h-8 w-8 flex-shrink-0">
                           <div className={`h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${user.type === 'customer'
-                              ? 'bg-blue-500'
-                              : 'bg-green-500'
+                            ? 'bg-blue-500'
+                            : 'bg-green-500'
                             }`}>
                             {user.name?.charAt(0)?.toUpperCase() || 'U'}
                           </div>
@@ -407,8 +537,8 @@ const Dashboard = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 py-1 text-xs rounded-full ${user.type === 'customer'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-green-100 text-green-800'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-green-100 text-green-800'
                         }`}>
                         {user.type === 'customer' ? 'Customer' : 'Service Provider'}
                       </span>
