@@ -2,12 +2,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { 
-  HiCheck, 
-  HiX, 
-  HiEye, 
-  HiClock, 
-  HiCheckCircle, 
+import {
+  HiCheck,
+  HiX,
+  HiEye,
+  HiClock,
+  HiCheckCircle,
   HiXCircle,
   HiUser,
   HiPhone,
@@ -23,6 +23,7 @@ import {
 } from 'react-icons/hi';
 import { serviceProviderService } from '../../services/serviceProviderService';
 import DataTable from '../../components/Common/DataTable';
+import StatsCard from '../../components/Common/StatsCard';
 
 const Verification = () => {
   const [requests, setRequests] = useState([]);
@@ -54,7 +55,7 @@ const Verification = () => {
       setLoading(true);
       const data = await serviceProviderService.getServiceProviders();
       setRequests(data);
-      
+
       // Calculate stats
       const counts = serviceProviderService.getStatusCounts(data);
       setStats(counts);
@@ -69,16 +70,16 @@ const Verification = () => {
   const handleApprove = async (providerId) => {
     try {
       await serviceProviderService.updateAccountStatus(providerId, 'accepted');
-      
+
       // Update local state
-      setRequests(requests.map(req => 
-        req.id === providerId ? { 
-          ...req, 
+      setRequests(requests.map(req =>
+        req.id === providerId ? {
+          ...req,
           accountStatus: 'accepted',
           reviewedAt: new Date().toISOString()
         } : req
       ));
-      
+
       // Update stats
       setStats(prev => ({
         ...prev,
@@ -88,7 +89,7 @@ const Verification = () => {
 
       // Remove from selected if present
       setSelectedRequests(prev => prev.filter(id => id !== providerId));
-      
+
       toast.success('Account approved successfully!');
     } catch (error) {
       console.error('Error approving account:', error);
@@ -99,20 +100,20 @@ const Verification = () => {
   const handleReject = async (providerId) => {
     const reason = prompt('Enter rejection reason:');
     if (!reason) return;
-    
+
     try {
       await serviceProviderService.updateAccountStatus(providerId, 'rejected', reason);
-      
+
       // Update local state
-      setRequests(requests.map(req => 
-        req.id === providerId ? { 
-          ...req, 
+      setRequests(requests.map(req =>
+        req.id === providerId ? {
+          ...req,
           accountStatus: 'rejected',
           reason: reason,
           reviewedAt: new Date().toISOString()
         } : req
       ));
-      
+
       // Update stats
       setStats(prev => ({
         ...prev,
@@ -122,7 +123,7 @@ const Verification = () => {
 
       // Remove from selected if present
       setSelectedRequests(prev => prev.filter(id => id !== providerId));
-      
+
       toast.success('Account rejected successfully!');
     } catch (error) {
       console.error('Error rejecting account:', error);
@@ -140,27 +141,27 @@ const Verification = () => {
     if (!window.confirm(`Approve ${selectedRequests.length} selected requests?`)) return;
 
     try {
-      const promises = selectedRequests.map(id => 
+      const promises = selectedRequests.map(id =>
         serviceProviderService.updateAccountStatus(id, 'accepted')
       );
       await Promise.all(promises);
-      
+
       // Update local state
-      setRequests(requests.map(req => 
-        selectedRequests.includes(req.id) ? { 
-          ...req, 
+      setRequests(requests.map(req =>
+        selectedRequests.includes(req.id) ? {
+          ...req,
           accountStatus: 'accepted',
           reviewedAt: new Date().toISOString()
         } : req
       ));
-      
+
       // Update stats
       setStats(prev => ({
         ...prev,
         pending: Math.max(0, prev.pending - selectedRequests.length),
         accepted: prev.accepted + selectedRequests.length
       }));
-      
+
       setSelectedRequests([]);
       setSelectAll(false);
       toast.success(`${selectedRequests.length} requests approved successfully!`);
@@ -182,28 +183,28 @@ const Verification = () => {
     if (!window.confirm(`Reject ${selectedRequests.length} selected requests?`)) return;
 
     try {
-      const promises = selectedRequests.map(id => 
+      const promises = selectedRequests.map(id =>
         serviceProviderService.updateAccountStatus(id, 'rejected', reason)
       );
       await Promise.all(promises);
-      
+
       // Update local state
-      setRequests(requests.map(req => 
-        selectedRequests.includes(req.id) ? { 
-          ...req, 
+      setRequests(requests.map(req =>
+        selectedRequests.includes(req.id) ? {
+          ...req,
           accountStatus: 'rejected',
           reason: reason,
           reviewedAt: new Date().toISOString()
         } : req
       ));
-      
+
       // Update stats
       setStats(prev => ({
         ...prev,
         pending: Math.max(0, prev.pending - selectedRequests.length),
         rejected: prev.rejected + selectedRequests.length
       }));
-      
+
       setSelectedRequests([]);
       setSelectAll(false);
       toast.success(`${selectedRequests.length} requests rejected successfully!`);
@@ -215,8 +216,8 @@ const Verification = () => {
 
   // Selection handling
   const handleSelectRequest = (id) => {
-    setSelectedRequests(prev => 
-      prev.includes(id) 
+    setSelectedRequests(prev =>
+      prev.includes(id)
         ? prev.filter(reqId => reqId !== id)
         : [...prev, id]
     );
@@ -237,15 +238,15 @@ const Verification = () => {
   // Filter and sort requests
   const filteredRequests = requests.filter(request => {
     if (filter !== 'all' && request.accountStatus !== filter) return false;
-    
+
     if (filters.category !== 'all' && request.serviceCategory !== filters.category) return false;
-    
+
     // Date filtering (simplified)
     if (filters.date !== 'all') {
       const requestDate = new Date(request.createdAt);
       const now = new Date();
       const diffDays = Math.floor((now - requestDate) / (1000 * 60 * 60 * 24));
-      
+
       switch (filters.date) {
         case 'today': return diffDays === 0;
         case 'week': return diffDays <= 7;
@@ -253,17 +254,17 @@ const Verification = () => {
         default: return true;
       }
     }
-    
+
     return true;
   }).sort((a, b) => {
     switch (filters.sortBy) {
-      case 'newest': 
+      case 'newest':
         return new Date(b.createdAt) - new Date(a.createdAt);
-      case 'oldest': 
+      case 'oldest':
         return new Date(a.createdAt) - new Date(b.createdAt);
-      case 'name': 
+      case 'name':
         return a.name.localeCompare(b.name);
-      default: 
+      default:
         return 0;
     }
   });
@@ -441,7 +442,7 @@ const Verification = () => {
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Service Provider Verification</h1>
           <p className="text-sm sm:text-base text-gray-600">Review and manage service provider account requests</p>
         </div>
-        
+
         <div className="flex flex-wrap gap-2">
           <button
             onClick={handleExport}
@@ -450,7 +451,7 @@ const Verification = () => {
             <HiDownload className="h-4 w-4" />
             <span className="hidden sm:inline">Export</span>
           </button>
-          
+
           <button
             onClick={() => setShowFilters(!showFilters)}
             className="btn-secondary flex items-center space-x-2"
@@ -459,7 +460,7 @@ const Verification = () => {
             <span className="hidden sm:inline">Filters</span>
             {showFilters ? <HiChevronUp className="h-4 w-4" /> : <HiChevronDown className="h-4 w-4" />}
           </button>
-          
+
           <div className="flex border border-gray-300 rounded-lg overflow-hidden">
             <button
               onClick={() => setViewMode('grid')}
@@ -467,7 +468,7 @@ const Verification = () => {
             >
               Grid
             </button>
-            
+
           </div>
         </div>
       </div>
@@ -491,7 +492,7 @@ const Verification = () => {
                 {/* Add more categories */}
               </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
               <select
@@ -505,7 +506,7 @@ const Verification = () => {
                 <option value="month">Last 30 Days</option>
               </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
               <select
@@ -536,7 +537,7 @@ const Verification = () => {
               Clear selection
             </button>
           </div>
-          
+
           <div className="flex flex-wrap gap-2">
             <button
               onClick={handleBulkApprove}
@@ -561,21 +562,19 @@ const Verification = () => {
         <div className="flex space-x-2 border-b border-gray-200 min-w-max">
           <button
             onClick={() => setFilter('all')}
-            className={`px-3 sm:px-4 py-2 font-medium rounded-t-lg transition-colors whitespace-nowrap ${
-              filter === 'all' 
-                ? 'text-blue-600 border-b-2 border-blue-600' 
+            className={`px-3 sm:px-4 py-2 font-medium rounded-t-lg transition-colors whitespace-nowrap ${filter === 'all'
+                ? 'text-blue-600 border-b-2 border-blue-600'
                 : 'text-gray-500 hover:text-gray-700'
-            }`}
+              }`}
           >
             All <span className="hidden sm:inline">({stats.total})</span>
           </button>
           <button
             onClick={() => setFilter('pending')}
-            className={`px-3 sm:px-4 py-2 font-medium rounded-t-lg transition-colors flex items-center space-x-1 sm:space-x-2 whitespace-nowrap ${
-              filter === 'pending' 
-                ? 'text-yellow-600 border-b-2 border-yellow-600' 
+            className={`px-3 sm:px-4 py-2 font-medium rounded-t-lg transition-colors flex items-center space-x-1 sm:space-x-2 whitespace-nowrap ${filter === 'pending'
+                ? 'text-yellow-600 border-b-2 border-yellow-600'
                 : 'text-gray-500 hover:text-gray-700'
-            }`}
+              }`}
           >
             <HiClock className="h-4 w-4" />
             <span>Pending</span>
@@ -585,21 +584,19 @@ const Verification = () => {
           </button>
           <button
             onClick={() => setFilter('accepted')}
-            className={`px-3 sm:px-4 py-2 font-medium rounded-t-lg transition-colors whitespace-nowrap ${
-              filter === 'accepted' 
-                ? 'text-green-600 border-b-2 border-green-600' 
+            className={`px-3 sm:px-4 py-2 font-medium rounded-t-lg transition-colors whitespace-nowrap ${filter === 'accepted'
+                ? 'text-green-600 border-b-2 border-green-600'
                 : 'text-gray-500 hover:text-gray-700'
-            }`}
+              }`}
           >
             Accepted <span className="hidden sm:inline">({stats.accepted})</span>
           </button>
           <button
             onClick={() => setFilter('rejected')}
-            className={`px-3 sm:px-4 py-2 font-medium rounded-t-lg transition-colors whitespace-nowrap ${
-              filter === 'rejected' 
-                ? 'text-red-600 border-b-2 border-red-600' 
+            className={`px-3 sm:px-4 py-2 font-medium rounded-t-lg transition-colors whitespace-nowrap ${filter === 'rejected'
+                ? 'text-red-600 border-b-2 border-red-600'
                 : 'text-gray-500 hover:text-gray-700'
-            }`}
+              }`}
           >
             Rejected <span className="hidden sm:inline">({stats.rejected})</span>
           </button>
@@ -608,50 +605,40 @@ const Verification = () => {
 
       {/* Stats Summary - Responsive Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs sm:text-sm text-gray-600">Total Providers</p>
-              <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.total}</p>
-            </div>
-            <div className="p-1 sm:p-2 bg-blue-50 rounded-lg">
-              <HiUser className="h-4 w-4 sm:h-6 sm:w-6 text-blue-600" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs sm:text-sm text-gray-600">Pending Review</p>
-              <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.pending}</p>
-            </div>
-            <div className="p-1 sm:p-2 bg-yellow-50 rounded-lg">
-              <HiClock className="h-4 w-4 sm:h-6 sm:w-6 text-yellow-600" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs sm:text-sm text-gray-600">Approved</p>
-              <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.accepted}</p>
-            </div>
-            <div className="p-1 sm:p-2 bg-green-50 rounded-lg">
-              <HiCheckCircle className="h-4 w-4 sm:h-6 sm:w-6 text-green-600" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs sm:text-sm text-gray-600">Rejected</p>
-              <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.rejected}</p>
-            </div>
-            <div className="p-1 sm:p-2 bg-red-50 rounded-lg">
-              <HiXCircle className="h-4 w-4 sm:h-6 sm:w-6 text-red-600" />
-            </div>
-          </div>
-        </div>
+        <StatsCard
+          compact
+          title="Total Providers"
+          value={stats.total}
+          icon={<HiUser />}
+          color="blue"
+          subtitle="All platform providers"
+        />
+        <StatsCard
+          compact
+          title="Pending"
+          value={stats.pending}
+          icon={<HiClock />}
+          color="yellow"
+          subtitle="Awaiting review"
+          trend={stats.pending > 0 ? "up" : null}
+          change={stats.pending > 0 ? "Action needed" : null}
+        />
+        <StatsCard
+          compact
+          title="Approved"
+          value={stats.accepted}
+          icon={<HiCheckCircle />}
+          color="green"
+          subtitle="Verified active"
+        />
+        <StatsCard
+          compact
+          title="Rejected"
+          value={stats.rejected}
+          icon={<HiXCircle />}
+          color="red"
+          subtitle="Failed requirements"
+        />
       </div>
 
       {/* Requests Content */}
@@ -683,7 +670,7 @@ const Verification = () => {
                   />
                 </div>
               )}
-              
+
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
@@ -717,13 +704,13 @@ const Verification = () => {
                     <span className="text-xs sm:text-sm truncate">{request.city}</span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-2">
                   <HiBriefcase className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 flex-shrink-0" />
                   <span className="text-xs sm:text-sm font-medium">{request.serviceCategory}</span>
                   <span className="text-xs sm:text-sm text-gray-600">({request.serviceType})</span>
                 </div>
-                
+
                 {request.subcategories && request.subcategories.length > 0 && (
                   <div className="space-y-1">
                     <div className="flex items-center space-x-2">
@@ -744,7 +731,7 @@ const Verification = () => {
                     </div>
                   </div>
                 )}
-                
+
                 {request.reason && (
                   <div className="bg-red-50 border border-red-100 rounded-lg p-3">
                     <span className="text-xs sm:text-sm font-medium text-red-600">Rejection Reason:</span>
@@ -758,9 +745,9 @@ const Verification = () => {
                 <p className="text-xs sm:text-sm font-medium text-gray-700 mb-2">Documents:</p>
                 <div className="flex flex-wrap gap-2">
                   {request.cnicFront && (
-                    <a 
-                      href={request.cnicFront} 
-                      target="_blank" 
+                    <a
+                      href={request.cnicFront}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 underline flex items-center space-x-1"
                     >
@@ -769,9 +756,9 @@ const Verification = () => {
                     </a>
                   )}
                   {request.cnicBack && (
-                    <a 
-                      href={request.cnicBack} 
-                      target="_blank" 
+                    <a
+                      href={request.cnicBack}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 underline flex items-center space-x-1"
                     >

@@ -49,7 +49,7 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch all data in parallel
       const [
         totalCounts,
@@ -92,7 +92,7 @@ const Dashboard = () => {
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
   // Calculate verification percentage
-  const verificationPercentage = stats.totalProviders > 0 
+  const verificationPercentage = stats.totalProviders > 0
     ? Math.round((stats.acceptedProviders / stats.totalProviders) * 100)
     : 0;
 
@@ -120,41 +120,48 @@ const Dashboard = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-        <p className="text-gray-600 mt-2">Welcome back! Real-time insights from your platform.</p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">Dashboard Overview</h1>
+          <p className="text-gray-500 mt-1 text-sm sm:text-base">Welcome back! Real-time insights from your platform.</p>
+        </div>
+        <div className="flex items-center space-x-2 text-sm text-gray-500 bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm self-start md:self-auto">
+          <HiCalendar className="h-4 w-4 text-blue-500" />
+          <span>{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+        </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <StatsCard
           title="Total Users"
           value={stats.totalUsers.toLocaleString()}
           icon={<HiUsers className="h-6 w-6" />}
           color="blue"
-          change={`${stats.totalCustomers} customers, ${stats.totalProviders} providers`}
+          subtitle={`${stats.totalCustomers} customers, ${stats.totalProviders} providers`}
         />
         <StatsCard
-          title="Active Service Providers"
+          title="Service Providers"
           value={stats.acceptedProviders.toLocaleString()}
           icon={<HiCheckCircle className="h-6 w-6" />}
           color="green"
-          change={`${verificationPercentage}% approved rate`}
+          subtitle={`${verificationPercentage}% approved rate`}
         />
         <StatsCard
           title="Pending Verification"
           value={stats.pendingVerification}
           icon={<HiClock className="h-6 w-6" />}
           color="yellow"
-          change="Needs attention"
-          trend={stats.pendingVerification > 0 ? "down" : null}
+          subtitle="Awaiting admin review"
+          trend={stats.pendingVerification > 10 ? "up" : null}
+          change={stats.pendingVerification > 0 ? "Action needed" : null}
         />
         <StatsCard
           title="Verified Users"
           value={stats.verifiedUsers.toLocaleString()}
           icon={<HiUserGroup className="h-6 w-6" />}
           color="purple"
-          change={`${Math.round((stats.verifiedUsers / stats.totalUsers) * 100)}% of total`}
+          subtitle={`${Math.round((stats.verifiedUsers / stats.totalUsers) * 100) || 0}% of total platform`}
         />
       </div>
 
@@ -174,29 +181,29 @@ const Dashboard = () => {
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                 <XAxis dataKey="day" stroke="#6B7280" />
                 <YAxis stroke="#6B7280" />
-                <Tooltip 
-                  contentStyle={{ 
+                <Tooltip
+                  contentStyle={{
                     backgroundColor: 'white',
                     border: '1px solid #E5E7EB',
                     borderRadius: '0.5rem'
                   }}
                   formatter={(value, name) => [
                     value,
-                    name === 'customers' ? 'Customers' : 
-                    name === 'providers' ? 'Service Providers' : 'Total Users'
+                    name === 'customers' ? 'Customers' :
+                      name === 'providers' ? 'Service Providers' : 'Total Users'
                   ]}
                 />
                 <Legend />
-                <Bar 
-                  dataKey="customers" 
-                  name="Customers" 
-                  fill="#3B82F6" 
+                <Bar
+                  dataKey="customers"
+                  name="Customers"
+                  fill="#3B82F6"
                   radius={[4, 4, 0, 0]}
                 />
-                <Bar 
-                  dataKey="providers" 
-                  name="Service Providers" 
-                  fill="#10B981" 
+                <Bar
+                  dataKey="providers"
+                  name="Service Providers"
+                  fill="#10B981"
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>
@@ -230,9 +237,9 @@ const Dashboard = () => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                   formatter={(value) => [value, 'Providers']}
-                  contentStyle={{ 
+                  contentStyle={{
                     backgroundColor: 'white',
                     border: '1px solid #E5E7EB',
                     borderRadius: '0.5rem'
@@ -256,31 +263,31 @@ const Dashboard = () => {
           </div>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart 
-                data={cityDistribution} 
+              <BarChart
+                data={cityDistribution}
                 layout="vertical"
                 margin={{ top: 20, right: 30, left: 100, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                 <XAxis type="number" stroke="#6B7280" />
-                <YAxis 
-                  type="category" 
-                  dataKey="name" 
+                <YAxis
+                  type="category"
+                  dataKey="name"
                   stroke="#6B7280"
                   width={90}
                   tick={{ fontSize: 12 }}
                 />
-                <Tooltip 
-                  contentStyle={{ 
+                <Tooltip
+                  contentStyle={{
                     backgroundColor: 'white',
                     border: '1px solid #E5E7EB',
                     borderRadius: '0.5rem'
                   }}
                   formatter={(value) => [value, 'Users']}
                 />
-                <Bar 
-                  dataKey="users" 
-                  fill="#8B5CF6" 
+                <Bar
+                  dataKey="users"
+                  fill="#8B5CF6"
                   radius={[0, 4, 4, 0]}
                 />
               </BarChart>
@@ -298,7 +305,7 @@ const Dashboard = () => {
             <div className="flex items-center space-x-2">
               {verificationDistribution.map((item, index) => (
                 <div key={index} className="flex items-center">
-                  <div 
+                  <div
                     className="w-3 h-3 rounded-full mr-2"
                     style={{ backgroundColor: item.color }}
                   ></div>
@@ -324,9 +331,9 @@ const Dashboard = () => {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                   formatter={(value) => [value, 'Providers']}
-                  contentStyle={{ 
+                  contentStyle={{
                     backgroundColor: 'white',
                     border: '1px solid #E5E7EB',
                     borderRadius: '0.5rem'
@@ -381,11 +388,10 @@ const Dashboard = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="h-8 w-8 flex-shrink-0">
-                          <div className={`h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${
-                            user.type === 'customer' 
-                              ? 'bg-blue-500' 
+                          <div className={`h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${user.type === 'customer'
+                              ? 'bg-blue-500'
                               : 'bg-green-500'
-                          }`}>
+                            }`}>
                             {user.name?.charAt(0)?.toUpperCase() || 'U'}
                           </div>
                         </div>
@@ -400,11 +406,10 @@ const Dashboard = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        user.type === 'customer'
+                      <span className={`px-2 py-1 text-xs rounded-full ${user.type === 'customer'
                           ? 'bg-blue-100 text-blue-800'
                           : 'bg-green-100 text-green-800'
-                      }`}>
+                        }`}>
                         {user.type === 'customer' ? 'Customer' : 'Service Provider'}
                       </span>
                     </td>
@@ -427,7 +432,7 @@ const Dashboard = () => {
         </div>
         {recentRegistrations.length > 0 && (
           <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-            <button 
+            <button
               onClick={fetchDashboardData}
               className="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center"
             >
@@ -470,7 +475,7 @@ const Dashboard = () => {
         <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg p-4 text-white">
           <p className="text-sm opacity-90">Avg. Daily Signups</p>
           <p className="text-xl font-bold">
-            {registrationTrend.length > 0 
+            {registrationTrend.length > 0
               ? Math.round(registrationTrend.reduce((sum, day) => sum + day.total, 0) / 7)
               : 0}
           </p>

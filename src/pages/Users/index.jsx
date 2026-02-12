@@ -3,16 +3,17 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { userService } from '../../services/userService';
+import { notificationService } from '../../services/notificationService';
 import UserModal from './UserModal';
-import { 
-  HiEye, 
-  HiPencil, 
-  HiTrash, 
-  HiPlus, 
-  HiSearch, 
-  HiFilter, 
-  HiRefresh, 
-  HiUserAdd, 
+import {
+  HiEye,
+  HiPencil,
+  HiTrash,
+  HiPlus,
+  HiSearch,
+  HiFilter,
+  HiRefresh,
+  HiUserAdd,
   HiChartBar,
   HiCheckCircle,
   HiUserGroup,
@@ -20,6 +21,7 @@ import {
   HiUser,
   HiHome,
 } from 'react-icons/hi';
+import StatsCard from '../../components/Common/StatsCard';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -55,7 +57,7 @@ const Users = () => {
       setLoading(true);
       const allUsers = await userService.getAllUsers();
       setUsers(allUsers);
-      
+
       const userStats = await userService.getUserStats();
       setStats(userStats);
     } catch (error) {
@@ -68,15 +70,15 @@ const Users = () => {
 
   const filterUsers = () => {
     let result = users.filter(user => {
-      const matchesSearch = 
+      const matchesSearch =
         user.name.toLowerCase().includes(search.toLowerCase()) ||
         user.email.toLowerCase().includes(search.toLowerCase()) ||
         user.phone.includes(search) ||
         user.city.toLowerCase().includes(search.toLowerCase()) ||
         (user.serviceCategory && user.serviceCategory.toLowerCase().includes(search.toLowerCase()));
-      
+
       let matchesFilter = true;
-      
+
       switch (filter) {
         case 'customers':
           matchesFilter = user.userType === 'customer';
@@ -108,10 +110,10 @@ const Users = () => {
         default:
           matchesFilter = true;
       }
-      
+
       return matchesSearch && matchesFilter;
     });
-    
+
     setFilteredUsers(result);
     setCurrentPage(1); // Reset to first page when filtering
   };
@@ -137,11 +139,44 @@ const Users = () => {
   const handleSave = async (userData) => {
     try {
       if (selectedUser) {
+        const previousStatus = selectedUser.accountStatus;
+        const newStatus = userData.accountStatus;
+
+        // Update user in database
         await userService.updateUser(selectedUser.id, selectedUser.userType, userData);
-        setUsers(users.map(user => 
+        setUsers(users.map(user =>
           user.id === selectedUser.id ? { ...user, ...userData } : user
         ));
-        toast.success('User updated successfully');
+
+        // Send notification if user is approved
+        if (previousStatus !== 'accepted' && newStatus === 'accepted') {
+          try {
+            await notificationService.sendApprovalNotification(
+              selectedUser.uid,
+              selectedUser.name,
+              selectedUser.userType
+            );
+            toast.success('User approved and notification sent!');
+          } catch (notificationError) {
+            console.warn('User updated but notification could not be sent:', notificationError);
+            toast.success('User updated successfully (notification may not have been sent)');
+          }
+        } else if (previousStatus !== 'rejected' && newStatus === 'rejected') {
+          // Send rejection notification
+          try {
+            await notificationService.sendRejectionNotification(
+              selectedUser.uid,
+              selectedUser.name,
+              userData.reason || 'No reason provided'
+            );
+            toast.success('User rejected and notification sent!');
+          } catch (notificationError) {
+            console.warn('User updated but rejection notification could not be sent:', notificationError);
+            toast.success('User updated successfully');
+          }
+        } else {
+          toast.success('User updated successfully');
+        }
       }
       setIsModalOpen(false);
       setSelectedUser(null);
@@ -186,14 +221,14 @@ const Users = () => {
           <p className="page-subtitle">Manage all users (Customers & Service Providers) of Theeka</p>
         </div>
         <div className="flex items-center space-x-3">
-          <button 
+          <button
             onClick={fetchUsers}
             className="btn-secondary flex items-center justify-center space-x-2"
           >
             <HiRefresh className="h-5 w-5" />
             <span>Refresh</span>
           </button>
-          <button 
+          <button
             onClick={() => {
               setSelectedUser(null);
               setIsModalOpen(true);
@@ -207,99 +242,59 @@ const Users = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Users</p>
-              <p className="text-xl font-bold text-gray-900">{stats.totalUsers}</p>
-            </div>
-            <div className="p-2 bg-blue-50 rounded-lg">
-              <HiUserGroup className="h-5 w-5 text-blue-600" />
-            </div>
-          </div>
-          <div className="mt-2 text-xs text-gray-500">
-            All registered users
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Customers</p>
-              <p className="text-xl font-bold text-gray-900">{stats.totalCustomers}</p>
-            </div>
-            <div className="p-2 bg-green-50 rounded-lg">
-              <HiUser className="h-5 w-5 text-green-600" />
-            </div>
-          </div>
-          <div className="mt-2 text-xs text-gray-500">
-            Total customers
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Service Providers</p>
-              <p className="text-xl font-bold text-gray-900">{stats.totalProviders}</p>
-            </div>
-            <div className="p-2 bg-purple-50 rounded-lg">
-              <HiBriefcase className="h-5 w-5 text-purple-600" />
-            </div>
-          </div>
-          <div className="mt-2 text-xs text-gray-500">
-            All providers
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Skilled</p>
-              <p className="text-xl font-bold text-gray-900">{stats.skilledProviders}</p>
-            </div>
-            <div className="p-2 bg-yellow-50 rounded-lg">
-            </div>
-          </div>
-          <div className="mt-2 text-xs text-gray-500">
-            Skilled workers
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Unskilled</p>
-              <p className="text-xl font-bold text-gray-900">{stats.unskilledProviders}</p>
-            </div>
-            <div className="p-2 bg-indigo-50 rounded-lg">
-              <HiHome className="h-5 w-5 text-indigo-600" />
-            </div>
-          </div>
-          <div className="mt-2 text-xs text-gray-500">
-            Unskilled workers
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">New Today</p>
-              <p className="text-xl font-bold text-gray-900">{stats.newToday}</p>
-            </div>
-            <div className="p-2 bg-red-50 rounded-lg">
-              <HiPlus className="h-5 w-5 text-red-600" />
-            </div>
-          </div>
-          <div className="mt-2 text-xs text-gray-500">
-            Today's registrations
-          </div>
-        </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+        <StatsCard
+          compact
+          title="Total Users"
+          value={stats.totalUsers}
+          icon={<HiUserGroup />}
+          color="blue"
+          subtitle="All platform users"
+        />
+        <StatsCard
+          compact
+          title="Customers"
+          value={stats.totalCustomers}
+          icon={<HiUser />}
+          color="green"
+          subtitle="Service seekers"
+        />
+        <StatsCard
+          compact
+          title="Providers"
+          value={stats.totalProviders}
+          icon={<HiBriefcase />}
+          color="purple"
+          subtitle="Service givers"
+        />
+        <StatsCard
+          compact
+          title="Skilled"
+          value={stats.skilledProviders}
+          icon={<HiCheckCircle />}
+          color="yellow"
+          subtitle="Qualified pros"
+        />
+        <StatsCard
+          compact
+          title="Unskilled"
+          value={stats.unskilledProviders}
+          icon={<HiHome />}
+          color="indigo"
+          subtitle="General labor"
+        />
+        <StatsCard
+          compact
+          title="New Today"
+          value={stats.newToday}
+          icon={<HiPlus />}
+          color="red"
+          subtitle="Recent signups"
+        />
       </div>
 
       {/* Filters & Search */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col lg:flex-row gap-4">
         <div className="flex-1 relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <HiSearch className="h-5 w-5 text-gray-400" />
@@ -308,27 +303,26 @@ const Users = () => {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search users by name, email, phone, city, or service..."
+            placeholder="Search users..."
             className="input-field pl-10"
           />
         </div>
-        <div className="flex items-center space-x-2">
-          <HiFilter className="h-5 w-5 text-gray-500" />
+        <div className="flex items-center space-x-2 w-full lg:w-auto">
+          <HiFilter className="h-5 w-5 text-gray-500 shrink-0" />
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="input-field"
+            className="input-field flex-1 lg:w-48"
           >
             <option value="all">All Users</option>
-            <option value="customers">Customers Only</option>
-            <option value="service_providers">Service Providers</option>
-            <option value="skilled">Skilled Workers</option>
-            <option value="unskilled">Unskilled Workers</option>
-            <option value="active">Active Users</option>
-            <option value="pending">Pending Verification</option>
-            <option value="inactive">Inactive Users</option>
-            <option value="verified">Verified Users</option>
-            <option value="unverified">Unverified Users</option>
+            <option value="customers">Customers</option>
+            <option value="service_providers">Providers</option>
+            <option value="skilled">Skilled</option>
+            <option value="unskilled">Unskilled</option>
+            <option value="active">Active</option>
+            <option value="pending">Pending</option>
+            <option value="inactive">Inactive</option>
+            <option value="verified">Verified</option>
           </select>
         </div>
       </div>
@@ -353,25 +347,25 @@ const Users = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead>
                   <tr className="bg-gray-50">
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       User
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Type & Category
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="hidden md:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Contact
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Location
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="hidden xl:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Join Date
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -379,103 +373,99 @@ const Users = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {currentUsers.map((user) => (
                     <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-4">
                         <div className="flex items-center">
-                          <div className="h-10 w-10 flex-shrink-0">
-                            <div className={`h-10 w-10 rounded-full flex items-center justify-center text-white font-bold text-sm ${
-                              user.userType === 'customer' 
+                          <div className="h-9 w-9 flex-shrink-0">
+                            <div className={`h-9 w-9 rounded-full flex items-center justify-center text-white font-bold text-sm ${user.userType === 'customer'
                                 ? 'bg-gradient-to-r from-blue-500 to-blue-600'
                                 : user.serviceType === 'skilled'
-                                ? 'bg-gradient-to-r from-purple-500 to-purple-600'
-                                : 'bg-gradient-to-r from-indigo-500 to-indigo-600'
-                            }`}>
+                                  ? 'bg-gradient-to-r from-purple-500 to-purple-600'
+                                  : 'bg-gradient-to-r from-indigo-500 to-indigo-600'
+                              }`}>
                               {user.name?.charAt(0)?.toUpperCase() || 'U'}
                             </div>
                           </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900 truncate max-w-xs">
+                          <div className="ml-3 min-w-0">
+                            <div className="text-sm font-medium text-gray-900 break-words">
                               {user.name}
                             </div>
-                            <div className="text-xs text-gray-500">
-                              {user.userType === 'customer' ? 'Customer' : 'Service Provider'}
+                            <div className="text-xs text-gray-500 sm:hidden">
+                              {user.userType === 'customer' ? 'Customer' : 'Provider'}
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="hidden sm:table-cell px-4 py-4">
                         <div className="space-y-1">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            getUserTypeColor(user.userType, user.serviceType)
-                          }`}>
-                            {user.userType === 'customer' 
-                              ? 'Customer' 
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${getUserTypeColor(user.userType, user.serviceType)
+                            }`}>
+                            {user.userType === 'customer'
+                              ? 'Customer'
                               : user.serviceType === 'skilled'
-                              ? 'Skilled Worker'
-                              : 'Unskilled Worker'
+                                ? 'Skilled'
+                                : 'Unskilled'
                             }
                           </span>
                           {user.serviceCategory && (
-                            <div className="text-xs text-gray-600 truncate max-w-xs">
+                            <div className="text-xs text-gray-600 break-words max-w-[150px]">
                               {user.serviceCategory}
                             </div>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900 truncate max-w-xs">
+                      <td className="hidden md:table-cell px-4 py-4">
+                        <div className="text-sm text-gray-900 truncate max-w-[150px]">
                           {user.email}
                         </div>
                         <div className="text-sm text-gray-500">
                           {user.phone}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
                           {user.city}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap">
                         <div className="flex flex-col space-y-1">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            getStatusColor(user.status)
-                          }`}>
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${getStatusColor(user.status)
+                            }`}>
                             {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
                           </span>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            user.isVerified 
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${user.isVerified
                               ? 'bg-blue-100 text-blue-800'
                               : 'bg-yellow-100 text-yellow-800'
-                          }`}>
+                            }`}>
                             {user.isVerified ? '✓ Verified' : 'Pending'}
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="hidden xl:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                         {user.formattedDate}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex items-center space-x-1">
+                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-right">
+                        <div className="flex items-center justify-end space-x-1">
                           <Link
                             to={`/users/${user.id}`}
                             state={{ user }}
-                            className="p-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
+                            className="p-1.5 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
                             title="View Details"
                           >
-                            <HiEye className="h-5 w-5" />
+                            <HiEye className="h-4 w-4" />
                           </Link>
                           <button
                             onClick={() => handleEdit(user)}
-                            className="p-2 text-yellow-600 hover:text-yellow-900 hover:bg-yellow-50 rounded-lg transition-colors"
+                            className="p-1.5 text-yellow-600 hover:text-yellow-900 hover:bg-yellow-50 rounded-lg transition-colors"
                             title="Edit User"
                           >
-                            <HiPencil className="h-5 w-5" />
+                            <HiPencil className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(user.id, user.name, user.userType)}
-                            className="p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-1.5 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors"
                             title="Delete User"
                           >
-                            <HiTrash className="h-5 w-5" />
+                            <HiTrash className="h-4 w-4" />
                           </button>
                         </div>
                       </td>
@@ -500,15 +490,14 @@ const Users = () => {
                     <button
                       onClick={() => paginate(Math.max(1, currentPage - 1))}
                       disabled={currentPage === 1}
-                      className={`px-3 py-1 border border-gray-300 rounded-md text-sm transition-colors ${
-                        currentPage === 1
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'hover:bg-gray-50'
-                      }`}
+                      className={`px-3 py-1 border border-gray-300 rounded-md text-sm transition-colors ${currentPage === 1
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'hover:bg-gray-50'
+                        }`}
                     >
                       Previous
                     </button>
-                    
+
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                       let pageNum;
                       if (totalPages <= 5) {
@@ -520,30 +509,28 @@ const Users = () => {
                       } else {
                         pageNum = currentPage - 2 + i;
                       }
-                      
+
                       return (
                         <button
                           key={pageNum}
                           onClick={() => paginate(pageNum)}
-                          className={`px-3 py-1 border rounded-md text-sm transition-colors ${
-                            currentPage === pageNum
-                              ? 'bg-blue-600 text-white border-blue-600'
-                              : 'border-gray-300 hover:bg-gray-50'
-                          }`}
+                          className={`px-3 py-1 border rounded-md text-sm transition-colors ${currentPage === pageNum
+                            ? 'bg-blue-600 text-white border-blue-600'
+                            : 'border-gray-300 hover:bg-gray-50'
+                            }`}
                         >
                           {pageNum}
                         </button>
                       );
                     })}
-                    
+
                     <button
                       onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
                       disabled={currentPage === totalPages}
-                      className={`px-3 py-1 border border-gray-300 rounded-md text-sm transition-colors ${
-                        currentPage === totalPages
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'hover:bg-gray-50'
-                      }`}
+                      className={`px-3 py-1 border border-gray-300 rounded-md text-sm transition-colors ${currentPage === totalPages
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'hover:bg-gray-50'
+                        }`}
                     >
                       Next
                     </button>
@@ -569,7 +556,7 @@ const Users = () => {
             {Math.round((stats.totalCustomers / stats.totalUsers) * 100) || 0}% of total users
           </div>
         </div>
-        
+
         <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-4 text-white">
           <div className="flex items-center justify-between">
             <div>
@@ -581,7 +568,7 @@ const Users = () => {
             {stats.totalProviders > 0 ? Math.round((stats.skilledProviders / stats.totalProviders) * 100) : 0}% of providers
           </div>
         </div>
-        
+
         <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg p-4 text-white">
           <div className="flex items-center justify-between">
             <div>
@@ -594,13 +581,13 @@ const Users = () => {
             {stats.totalProviders > 0 ? Math.round((stats.unskilledProviders / stats.totalProviders) * 100) : 0}% of providers
           </div>
         </div>
-        
+
         <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-4 text-white">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm opacity-90">Verification Rate</p>
               <p className="text-xl font-bold">
-                {stats.totalProviders > 0 
+                {stats.totalProviders > 0
                   ? Math.round((stats.totalProviders - filteredUsers.filter(u => u.userType === 'service_provider' && u.status === 'pending').length) / stats.totalProviders * 100)
                   : 0}%
               </p>

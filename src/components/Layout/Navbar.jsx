@@ -1,10 +1,10 @@
 // src/components/Layout/Navbar.jsx
 import { useState, useEffect, useRef } from 'react';
-import { 
-  HiSearch, 
-  HiBell, 
-  HiUserCircle, 
-  HiMenu, 
+import {
+  HiSearch,
+  HiBell,
+  HiUserCircle,
+  HiMenu,
   HiX,
   HiChevronDown,
   HiOutlineLogout,
@@ -21,7 +21,7 @@ const Navbar = ({ onMenuClick, isMobile, user = null }) => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(3);
-  
+
   const userMenuRef = useRef(null);
   const notificationsRef = useRef(null);
   const searchRef = useRef(null);
@@ -87,7 +87,7 @@ const Navbar = ({ onMenuClick, isMobile, user = null }) => {
       <header className="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="px-3 sm:px-4 md:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-4">
-            
+
             {/* Left Section - Mobile Menu & Brand */}
             <div className="flex items-center gap-3 sm:gap-4">
               {/* Mobile Menu Button */}
@@ -110,25 +110,25 @@ const Navbar = ({ onMenuClick, isMobile, user = null }) => {
             </div>
 
             {/* Center Section - Search Bar */}
-            <div className={`flex-1 transition-all duration-300 ${isSearchActive && isMobile ? 'absolute left-0 right-0 mx-4 top-16 z-40' : 'max-w-2xl'}`}>
-              <form 
+            <div className={`flex-1 transition-all duration-300 ${isSearchActive && isMobile ? 'fixed inset-x-0 top-0 h-16 bg-white dark:bg-gray-800 z-50 px-4 flex items-center shadow-md' : 'max-w-xl mx-auto'}`}>
+              <form
                 ref={searchRef}
                 onSubmit={handleSearch}
-                className={`relative ${isSearchActive && isMobile ? 'shadow-lg' : ''}`}
+                className="w-full relative"
               >
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <HiSearch className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                 </div>
-                
+
                 {/* Mobile Search Toggle */}
                 {isMobile && !isSearchActive && (
                   <button
                     type="button"
                     onClick={() => setIsSearchActive(true)}
-                    className="w-full flex items-center justify-center p-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                    className="w-full flex items-center justify-center py-2 px-3 border border-gray-200 dark:border-gray-700 rounded-full bg-gray-50 dark:bg-gray-900 transition-all hover:bg-gray-100"
                   >
-                    <HiSearch className="h-5 w-5 text-gray-400 mr-2" />
-                    <span className="text-gray-500 dark:text-gray-400">Search...</span>
+                    <HiSearch className="h-4 w-4 text-gray-400 mr-2" />
+                    <span className="text-gray-400 text-sm">Search platform...</span>
                   </button>
                 )}
 
@@ -140,17 +140,17 @@ const Navbar = ({ onMenuClick, isMobile, user = null }) => {
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       placeholder="Search users, reports, analytics..."
-                      className="w-full pl-10 pr-4 py-2 sm:py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full pl-10 pr-10 py-2 sm:py-2.5 bg-gray-50 dark:bg-gray-700 border-transparent rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600 transition-all outline-none text-sm sm:text-base"
                       autoFocus={isMobile && isSearchActive}
                     />
                     {isMobile && isSearchActive && (
                       <button
                         type="button"
                         onClick={() => setIsSearchActive(false)}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 bg-gray-200 dark:bg-gray-600 rounded-full"
                         aria-label="Close search"
                       >
-                        <HiX className="h-5 w-5 text-gray-400" />
+                        <HiX className="h-4 w-4 text-gray-500 dark:text-gray-300" />
                       </button>
                     )}
                   </div>
@@ -159,17 +159,17 @@ const Navbar = ({ onMenuClick, isMobile, user = null }) => {
             </div>
 
             {/* Right Section - Actions */}
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-1 sm:gap-3">
               {/* Dark Mode Toggle */}
               <button
                 onClick={toggleDarkMode}
-                className="hidden sm:flex p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="hidden md:flex p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
               >
                 {darkMode ? (
-                  <HiOutlineSun className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                  <HiOutlineSun className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                 ) : (
-                  <HiOutlineMoon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                  <HiOutlineMoon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                 )}
               </button>
 
@@ -180,12 +180,12 @@ const Navbar = ({ onMenuClick, isMobile, user = null }) => {
                     setIsNotificationsOpen(!isNotificationsOpen);
                     setIsUserMenuOpen(false);
                   }}
-                  className="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors relative"
                   aria-label="Notifications"
                 >
-                  <HiBell className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                  <HiBell className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                   {unreadNotifications > 0 && (
-                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-gray-800"></span>
                   )}
                 </button>
 
@@ -205,7 +205,7 @@ const Navbar = ({ onMenuClick, isMobile, user = null }) => {
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="max-h-96 overflow-y-auto">
                       {notifications.map((notification) => (
                         <div
@@ -217,7 +217,7 @@ const Navbar = ({ onMenuClick, isMobile, user = null }) => {
                         </div>
                       ))}
                     </div>
-                    
+
                     <div className="p-4 text-center border-t border-gray-200 dark:border-gray-700">
                       <a
                         href="#"

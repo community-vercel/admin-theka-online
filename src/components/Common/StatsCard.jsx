@@ -2,26 +2,26 @@
 import { HiArrowUp, HiArrowDown } from 'react-icons/hi';
 import { useState, useEffect } from 'react';
 
-const StatsCard = ({ 
-  title, 
-  value, 
-  icon, 
-  color = 'blue', 
-  change, 
-  trend, 
+const StatsCard = ({
+  title,
+  value,
+  icon,
+  color = 'blue',
+  change,
+  trend,
   loading = false,
   subtitle,
   onClick,
   compact = false
 }) => {
   const [isMobile, setIsMobile] = useState(false);
-  
+
   // Check screen size
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
@@ -106,11 +106,11 @@ const StatsCard = ({
   }
 
   return (
-    <div 
+    <div
       className={`
         bg-white rounded-xl border ${selectedColor.border} 
-        p-4 sm:p-6 shadow-sm hover:shadow-md transition-all duration-200
-        ${compact ? 'h-full' : ''}
+        p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-md transition-all duration-200
+        flex flex-col h-full
         ${onClick ? 'cursor-pointer hover:scale-[1.02] active:scale-[0.98]' : ''}
         ${selectedColor.hover}
       `}
@@ -125,12 +125,12 @@ const StatsCard = ({
       }}
     >
       {/* Top Section - Icon & Trend */}
-      <div className={`flex items-center justify-between ${compact ? 'mb-3' : 'mb-4 sm:mb-5'}`}>
+      <div className={`flex items-start justify-between ${compact ? 'mb-3' : 'mb-4 sm:mb-5'}`}>
         {/* Icon Container */}
         <div className={`
           ${selectedColor.bg} ${selectedColor.text} rounded-lg
-          ${compact ? 'p-2 sm:p-2.5' : 'p-3 sm:p-4'}
-          transition-transform duration-200 hover:scale-105
+          ${compact ? 'p-2' : 'p-3 sm:p-3.5'}
+          transition-transform duration-200 hover:scale-105 flex-shrink-0
         `}>
           <div className={getIconSize()}>
             {icon}
@@ -140,17 +140,16 @@ const StatsCard = ({
         {/* Trend Indicator */}
         {trend && change && (
           <div className={`
-            flex items-center text-xs sm:text-sm font-medium px-2 sm:px-3 py-1 rounded-full
-            ${trend === 'up' 
-              ? 'bg-green-50 text-green-700 border border-green-200' 
+            flex items-center text-xs sm:text-sm font-medium px-2 py-1 rounded-full ml-2
+            ${trend === 'up'
+              ? 'bg-green-50 text-green-700 border border-green-200'
               : 'bg-red-50 text-red-700 border border-red-200'
             }
-            ${compact ? 'text-xs' : ''}
           `}>
             {trend === 'up' ? (
-              <HiArrowUp className={`${compact ? 'h-3 w-3' : 'h-3 w-3 sm:h-4 sm:w-4'} mr-1`} />
+              <HiArrowUp className="h-3 w-3 mr-1 flex-shrink-0" />
             ) : (
-              <HiArrowDown className={`${compact ? 'h-3 w-3' : 'h-3 w-3 sm:h-4 sm:w-4'} mr-1`} />
+              <HiArrowDown className="h-3 w-3 mr-1 flex-shrink-0" />
             )}
             <span className="whitespace-nowrap">{change}</span>
           </div>
@@ -158,19 +157,19 @@ const StatsCard = ({
       </div>
 
       {/* Content Section */}
-      <div>
+      <div className="flex-1 flex flex-col justify-end">
         {/* Title */}
         <p className={`
-          text-gray-600 mb-1 sm:mb-2
-          ${compact ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'}
-          truncate
+          text-gray-600 mb-1
+          ${compact ? 'text-xs' : 'text-sm sm:text-base'}
+          leading-tight
         `}>
           {title}
         </p>
 
         {/* Value */}
         <p className={`
-          font-bold text-gray-900 mb-0
+          font-bold text-gray-900 mb-0 break-words
           ${getValueFontSize()}
         `}>
           {value}
@@ -179,19 +178,20 @@ const StatsCard = ({
         {/* Subtitle (Optional) */}
         {subtitle && (
           <p className={`
-            mt-1 sm:mt-2
-            ${compact ? 'text-xs' : 'text-sm'}
-            text-gray-500 truncate
+            mt-2
+            ${compact ? 'text-[10px]' : 'text-xs sm:text-sm'}
+            text-gray-500 leading-relaxed
           `}>
             {subtitle}
           </p>
         )}
       </div>
 
-      {/* Additional Info for larger screens */}
+      {/* Additional Info for larger screens - Only if not already showing subtitle above */}
       {!compact && !isMobile && subtitle && (
-        <div className="mt-4 pt-3 border-t border-gray-100 hidden sm:block">
-          <p className="text-xs text-gray-500">{subtitle}</p>
+        <div className="mt-4 pt-4 border-t border-gray-100 hidden lg:block">
+          <p className="text-xs text-gray-400 font-medium">Platform Insight</p>
+          <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
         </div>
       )}
     </div>

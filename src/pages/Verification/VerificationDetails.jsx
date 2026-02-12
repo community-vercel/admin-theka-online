@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { HiArrowLeft, HiCheck, HiX } from 'react-icons/hi';
 import toast from 'react-hot-toast';
 import { serviceProviderService } from '../../services/serviceProviderService';
+import { notificationService } from '../../services/notificationService';
 
 const VerificationDetail = () => {
   const location = useLocation();
@@ -13,7 +14,7 @@ const VerificationDetail = () => {
     return (
       <div className="text-center py-12">
         <h2 className="text-xl font-semibold text-gray-700">No provider data found</h2>
-        <button 
+        <button
           onClick={() => navigate('/verification')}
           className="mt-4 btn-secondary"
         >
@@ -27,6 +28,20 @@ const VerificationDetail = () => {
     try {
       await serviceProviderService.updateAccountStatus(provider.id, 'accepted');
       toast.success('Account approved successfully!');
+
+      // Send push notification to service provider
+      try {
+        await notificationService.sendApprovalNotification(
+          provider.uid,
+          provider.name,
+          'service_provider'
+        );
+        toast.success('Notification sent to service provider!');
+      } catch (notifError) {
+        console.warn('Failed to send notification:', notifError);
+        toast('Approved, but notification failed to send', { icon: '⚠️' });
+      }
+
       navigate('/verification');
     } catch (error) {
       toast.error('Failed to approve account');
@@ -36,10 +51,24 @@ const VerificationDetail = () => {
   const handleReject = async () => {
     const reason = prompt('Enter rejection reason:');
     if (!reason) return;
-    
+
     try {
       await serviceProviderService.updateAccountStatus(provider.id, 'rejected', reason);
       toast.success('Account rejected successfully!');
+
+      // Send push notification to service provider with rejection reason
+      try {
+        await notificationService.sendRejectionNotification(
+          provider.uid,
+          provider.name,
+          reason
+        );
+        toast.success('Rejection notification sent to service provider!');
+      } catch (notifError) {
+        console.warn('Failed to send notification:', notifError);
+        toast('Rejected, but notification failed to send', { icon: '⚠️' });
+      }
+
       navigate('/verification');
     } catch (error) {
       toast.error('Failed to reject account');
@@ -57,7 +86,7 @@ const VerificationDetail = () => {
           <HiArrowLeft className="h-4 w-4" />
           <span>Back to List</span>
         </button>
-        
+
         {provider.accountStatus === 'pending' && (
           <div className="flex space-x-2">
             <button
@@ -98,11 +127,10 @@ const VerificationDetail = () => {
                 <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
                   {provider.serviceType}
                 </span>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  provider.accountStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${provider.accountStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                   provider.accountStatus === 'accepted' ? 'bg-green-100 text-green-800' :
-                  'bg-red-100 text-red-800'
-                }`}>
+                    'bg-red-100 text-red-800'
+                  }`}>
                   {provider.accountStatus.toUpperCase()}
                 </span>
               </div>
@@ -150,9 +178,9 @@ const VerificationDetail = () => {
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-700 mb-2">CNIC Front</p>
                 <a href={provider.cnicFront} target="_blank" rel="noopener noreferrer">
-                  <img 
-                    src={provider.cnicFront} 
-                    alt="CNIC Front" 
+                  <img
+                    src={provider.cnicFront}
+                    alt="CNIC Front"
                     className="w-full h-48 object-cover rounded-lg border border-gray-200 hover:border-blue-500 transition-colors cursor-pointer"
                   />
                 </a>
@@ -160,9 +188,9 @@ const VerificationDetail = () => {
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-700 mb-2">CNIC Back</p>
                 <a href={provider.cnicBack} target="_blank" rel="noopener noreferrer">
-                  <img 
-                    src={provider.cnicBack} 
-                    alt="CNIC Back" 
+                  <img
+                    src={provider.cnicBack}
+                    alt="CNIC Back"
                     className="w-full h-48 object-cover rounded-lg border border-gray-200 hover:border-blue-500 transition-colors cursor-pointer"
                   />
                 </a>
@@ -170,9 +198,9 @@ const VerificationDetail = () => {
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-700 mb-2">Profile Image</p>
                 <a href={provider.profileImage} target="_blank" rel="noopener noreferrer">
-                  <img 
-                    src={provider.profileImage} 
-                    alt="Profile" 
+                  <img
+                    src={provider.profileImage}
+                    alt="Profile"
                     className="w-full h-48 object-cover rounded-lg border border-gray-200 hover:border-blue-500 transition-colors cursor-pointer"
                   />
                 </a>

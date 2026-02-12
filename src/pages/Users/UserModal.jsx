@@ -13,7 +13,8 @@ const UserModal = ({ user, onClose, onSave }) => {
     serviceType: 'skilled',
     serviceCategory: '',
     accountStatus: 'pending',
-    status: 'active'
+    status: 'active',
+    reason: ''
   });
 
   useEffect(() => {
@@ -28,7 +29,8 @@ const UserModal = ({ user, onClose, onSave }) => {
         serviceType: user.serviceType || 'skilled',
         serviceCategory: user.serviceCategory || '',
         accountStatus: user.accountStatus || 'pending',
-        status: user.status || 'active'
+        status: user.status || 'active',
+        reason: user.reason || ''
       });
     }
   }, [user]);
@@ -209,6 +211,22 @@ const UserModal = ({ user, onClose, onSave }) => {
                     <option value="rejected">Rejected</option>
                   </select>
                 </div>
+
+                {formData.accountStatus === 'rejected' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Rejection Reason
+                    </label>
+                    <textarea
+                      name="reason"
+                      value={formData.reason}
+                      onChange={handleChange}
+                      className="input-field"
+                      placeholder="Explain why the account was rejected..."
+                      rows="3"
+                    />
+                  </div>
+                )}
               </>
             )}
 
