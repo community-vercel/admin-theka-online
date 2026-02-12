@@ -19,7 +19,6 @@ const Navbar = ({ onMenuClick, isMobile, user = null }) => {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(3);
 
   const userMenuRef = useRef(null);
@@ -53,16 +52,6 @@ const Navbar = ({ onMenuClick, isMobile, user = null }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isSearchActive]);
 
-  // Toggle dark mode
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    if (!darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
-
   // Handle search
   const handleSearch = (e) => {
     e.preventDefault();
@@ -83,252 +72,140 @@ const Navbar = ({ onMenuClick, isMobile, user = null }) => {
   };
 
   return (
-    <>
-      <header className="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="px-3 sm:px-4 md:px-6 py-3 sm:py-4">
-          <div className="flex items-center justify-between gap-4">
-
-            {/* Left Section - Mobile Menu & Brand */}
-            <div className="flex items-center gap-3 sm:gap-4">
-              {/* Mobile Menu Button */}
-              {isMobile && (
-                <button
-                  onClick={onMenuClick}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  aria-label="Toggle menu"
-                >
-                  <HiMenu className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-                </button>
-              )}
-
-              {/* Brand/Logo - Hidden on small mobile, shown on larger screens */}
-              <div className="hidden sm:block">
-                <h1 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white">
-                  Dashboard
-                </h1>
-              </div>
-            </div>
-
-            {/* Center Section - Search Bar */}
-            <div className={`flex-1 transition-all duration-300 ${isSearchActive && isMobile ? 'fixed inset-x-0 top-0 h-16 bg-white dark:bg-gray-800 z-50 px-4 flex items-center shadow-md' : 'max-w-xl mx-auto'}`}>
-              <form
-                ref={searchRef}
-                onSubmit={handleSearch}
-                className="w-full relative"
-              >
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <HiSearch className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
-                </div>
-
-                {/* Mobile Search Toggle */}
-                {isMobile && !isSearchActive && (
-                  <button
-                    type="button"
-                    onClick={() => setIsSearchActive(true)}
-                    className="w-full flex items-center justify-center py-2 px-3 border border-gray-200 dark:border-gray-700 rounded-full bg-gray-50 dark:bg-gray-900 transition-all hover:bg-gray-100"
-                  >
-                    <HiSearch className="h-4 w-4 text-gray-400 mr-2" />
-                    <span className="text-gray-400 text-sm">Search platform...</span>
-                  </button>
-                )}
-
-                {/* Search Input - Always visible on desktop, conditional on mobile */}
-                {(!isMobile || isSearchActive) && (
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      placeholder="Search users, reports, analytics..."
-                      className="w-full pl-10 pr-10 py-2 sm:py-2.5 bg-gray-50 dark:bg-gray-700 border-transparent rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600 transition-all outline-none text-sm sm:text-base"
-                      autoFocus={isMobile && isSearchActive}
-                    />
-                    {isMobile && isSearchActive && (
-                      <button
-                        type="button"
-                        onClick={() => setIsSearchActive(false)}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 bg-gray-200 dark:bg-gray-600 rounded-full"
-                        aria-label="Close search"
-                      >
-                        <HiX className="h-4 w-4 text-gray-500 dark:text-gray-300" />
-                      </button>
-                    )}
-                  </div>
-                )}
-              </form>
-            </div>
-
-            {/* Right Section - Actions */}
-            <div className="flex items-center gap-1 sm:gap-3">
-              {/* Dark Mode Toggle */}
-              <button
-                onClick={toggleDarkMode}
-                className="hidden md:flex p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-              >
-                {darkMode ? (
-                  <HiOutlineSun className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                ) : (
-                  <HiOutlineMoon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                )}
-              </button>
-
-              {/* Notifications Dropdown */}
-              <div className="relative" ref={notificationsRef}>
-                <button
-                  onClick={() => {
-                    setIsNotificationsOpen(!isNotificationsOpen);
-                    setIsUserMenuOpen(false);
-                  }}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors relative"
-                  aria-label="Notifications"
-                >
-                  <HiBell className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                  {unreadNotifications > 0 && (
-                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-gray-800"></span>
-                  )}
-                </button>
-
-                {/* Notifications Dropdown Menu */}
-                {isNotificationsOpen && (
-                  <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-                    <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-gray-900 dark:text-white">Notifications</h3>
-                        {unreadNotifications > 0 && (
-                          <button
-                            onClick={markAllAsRead}
-                            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-                          >
-                            Mark all as read
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="max-h-96 overflow-y-auto">
-                      {notifications.map((notification) => (
-                        <div
-                          key={notification.id}
-                          className={`p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${!notification.read ? 'bg-blue-50 dark:bg-gray-700' : ''}`}
-                        >
-                          <p className="font-medium text-gray-900 dark:text-white">{notification.title}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{notification.time}</p>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="p-4 text-center border-t border-gray-200 dark:border-gray-700">
-                      <a
-                        href="#"
-                        className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-                      >
-                        View all notifications
-                      </a>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* User Menu */}
-              <div className="relative" ref={userMenuRef}>
-                <button
-                  onClick={() => {
-                    setIsUserMenuOpen(!isUserMenuOpen);
-                    setIsNotificationsOpen(false);
-                  }}
-                  className="flex items-center gap-2 sm:gap-3 p-1 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  aria-label="User menu"
-                >
-                  {/* User Info - Hidden on small mobile */}
-                  <div className="hidden sm:block text-right">
-                    <p className="font-medium text-sm text-gray-900 dark:text-white truncate max-w-[120px]">
-                      {userData.name}
-                    </p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 truncate max-w-[120px]">
-                      {userData.role}
-                    </p>
-                  </div>
-
-                  {/* User Avatar */}
-                  <div className={`w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r ${userData.avatarColor} rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base`}>
-                    {userData.initials}
-                  </div>
-
-                  <HiChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {/* User Dropdown Menu */}
-                {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 sm:w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-                    {/* User Info in Dropdown */}
-                    <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 bg-gradient-to-r ${userData.avatarColor} rounded-full flex items-center justify-center text-white font-bold`}>
-                          {userData.initials}
-                        </div>
-                        <div>
-                          <p className="font-semibold text-gray-900 dark:text-white">
-                            {userData.name}
-                          </p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {userData.email}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Menu Items */}
-                    <div className="py-2">
-                      <a
-                        href="#"
-                        className="flex items-center gap-3 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      >
-                        <HiOutlineUser className="h-5 w-5" />
-                        <span>Profile</span>
-                      </a>
-                      <a
-                        href="#"
-                        className="flex items-center gap-3 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      >
-                        <HiOutlineCog className="h-5 w-5" />
-                        <span>Settings</span>
-                      </a>
-                      <button
-                        onClick={toggleDarkMode}
-                        className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      >
-                        {darkMode ? (
-                          <HiOutlineSun className="h-5 w-5" />
-                        ) : (
-                          <HiOutlineMoon className="h-5 w-5" />
-                        )}
-                        <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
-                      </button>
-                    </div>
-
-                    <div className="border-t border-gray-200 dark:border-gray-700 py-2">
-                      <a
-                        href="#"
-                        className="flex items-center gap-3 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      >
-                        <HiOutlineLogout className="h-5 w-5" />
-                        <span>Logout</span>
-                      </a>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Spacer for fixed navbar on mobile */}
+    <nav className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 bg-white/80 backdrop-blur-md px-6 border-b border-slate-100">
+      {/* Mobile Menu Button - Styled */}
       {isMobile && (
-        <div className="h-16"></div>
+        <button
+          onClick={onMenuClick}
+          className="p-2.5 rounded-xl bg-slate-100/50 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200"
+        >
+          <HiMenu className="h-6 w-6" />
+        </button>
       )}
-    </>
+
+      {/* Brand/Logo - Mobile only title if needed, or desktop title */}
+      {!isMobile && (
+        <div className="flex-shrink-0">
+          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
+            Dashboard
+          </h1>
+        </div>
+      )}
+
+      {/* Search Bar - Modern & Responsive */}
+      <div className={`
+        flex-1 max-w-2xl transition-all duration-300
+        ${isSearchActive && isMobile ? 'fixed inset-0 z-50 flex items-center bg-white p-4 h-20 px-6 border-b border-slate-100' : 'relative hidden lg:block'}
+      `}>
+        <form ref={searchRef} onSubmit={handleSearch} className="w-full relative group">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <HiSearch className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+          </div>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search everything..."
+            className="input-field pl-12 pr-4 bg-slate-50 border-slate-100 focus:bg-white w-full"
+            autoFocus={isSearchActive && isMobile}
+          />
+          {isSearchActive && isMobile && (
+            <button
+              type="button"
+              onClick={() => setIsSearchActive(false)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+            >
+              <HiX className="h-5 w-5" />
+            </button>
+          )}
+        </form>
+      </div>
+
+      {/* Right Side Actions */}
+      <div className="flex items-center gap-2 sm:gap-4 ml-auto">
+        {/* Mobile Search Toggle */}
+        {isMobile && !isSearchActive && (
+          <button
+            onClick={() => setIsSearchActive(true)}
+            className="p-2.5 rounded-xl text-slate-500 hover:bg-slate-50 transition-colors"
+          >
+            <HiSearch className="h-6 w-6" />
+          </button>
+        )}
+
+        {/* Notifications */}
+        <div className="relative" ref={notificationsRef}>
+          <button
+            onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+            className="p-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-indigo-600 transition-all duration-200 relative group"
+          >
+            <HiBell className="h-6 w-6" />
+            {unreadNotifications > 0 && (
+              <span className="absolute top-2.5 right-2.5 h-2 w-2 bg-indigo-500 ring-2 ring-white rounded-full"></span>
+            )}
+          </button>
+
+          {isNotificationsOpen && (
+            <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
+              <div className="p-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+                <span className="font-bold text-slate-900 text-sm">Recent Notifications</span>
+                {unreadNotifications > 0 && (
+                  <button onClick={markAllAsRead} className="text-[10px] uppercase font-black text-indigo-500 hover:text-indigo-600 tracking-widest">Mark All Read</button>
+                )}
+              </div>
+              <div className="max-h-80 overflow-y-auto">
+                {notifications.map(n => (
+                  <div key={n.id} className={`p-4 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 ${!n.read ? 'bg-indigo-50/30' : ''}`}>
+                    <p className="text-sm text-slate-700 font-semibold">{n.title}</p>
+                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-bold">{n.time}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* User Profile */}
+        <div className="relative h-10 w-px bg-slate-100 mx-1 hidden sm:block"></div>
+
+        <div className="relative" ref={userMenuRef}>
+          <button
+            onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+            className="flex items-center gap-3 pl-1 sm:pl-2 group"
+          >
+            <div className="hidden sm:block text-right">
+              <p className="text-sm font-bold text-slate-900 leading-none">{userData.name}</p>
+              <p className="text-[10px] text-indigo-500 mt-1 uppercase tracking-widest font-black leading-none">{userData.role}</p>
+            </div>
+
+            <div className="h-10 w-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center font-bold text-indigo-600 shadow-sm group-hover:scale-105 transition-transform duration-200">
+              {userData.initials}
+            </div>
+            <HiChevronDown className={`h-4 w-4 text-slate-400 group-hover:text-slate-600 transition-transform hidden sm:block ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          {isUserMenuOpen && (
+            <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
+              <div className="p-5 bg-slate-50">
+                <p className="font-bold text-slate-900 text-sm">{userData.name}</p>
+                <p className="text-xs text-slate-400 mt-0.5">{userData.email}</p>
+              </div>
+              <div className="p-2">
+                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-all font-bold text-[13px]">
+                  <HiOutlineUser className="h-5 w-5" />
+                  <span>Account Settings</span>
+                </button>
+                <div className="h-px bg-slate-100 my-1"></div>
+                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-500 hover:bg-rose-50 transition-all font-bold text-[13px]">
+                  <HiOutlineLogout className="h-5 w-5" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </nav>
   );
 };
 

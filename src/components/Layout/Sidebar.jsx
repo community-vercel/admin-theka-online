@@ -15,7 +15,9 @@ import {
   HiCollection,
   HiCash,
   HiShoppingCart,
-  HiDatabase
+  HiDatabase,
+  HiLightningBolt,
+  HiUserCircle
 } from 'react-icons/hi';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../services/firebase';
@@ -32,7 +34,7 @@ const Sidebar = ({ isMobile, onItemClick, isCollapsed = false, onToggleCollapse 
     { path: '/verification', icon: <HiCheckCircle />, label: 'Verification', badge: '' },
     { path: '/ads', icon: <HiPhotograph />, label: 'Ads Management' },
     { path: '/settings', icon: <HiCog />, label: 'Settings' },
-      { path: '/db/health', icon: <HiDatabase />, label: 'DB Health' }, // Add this line
+    { path: '/db/health', icon: <HiDatabase />, label: 'DB Health' }, // Add this line
 
   ];
 
@@ -60,129 +62,104 @@ const Sidebar = ({ isMobile, onItemClick, isCollapsed = false, onToggleCollapse 
 
   return (
     <aside className={`
-      bg-gray-900 text-white 
-      h-screen
-      fixed left-0 top-0
-      z-40
-      transition-all duration-300 
+      bg-white border-r border-slate-200/60
+      h-screen fixed left-0 top-0 z-40
+      transition-all duration-300 ease-in-out
       ${isMobile ? 'w-72' : isCollapsed ? 'w-20' : 'w-64'}
-      flex flex-col
-      shadow-2xl
+      flex flex-col shadow-[0_0_20px_rgba(0,0,0,0.02)]
     `}>
       {/* Sidebar Header with Logo */}
-      <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-        {shouldShowLabels ? (
-          <div className="flex items-center space-x-3">
-            {/* Logo Container */}
-            <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg overflow-hidden">
-              {/* Logo Image */}
-              <img 
-                src={logoUrl} 
-                alt="Theka Online Logo" 
-                className="h-full w-full object-cover"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.parentElement.innerHTML = '<span class="font-bold text-white">T</span>';
-                }}
-              />
-            </div>
-            <h1 className="text-xl font-bold">Theka Online</h1>
+      <div className="h-20 flex items-center px-6 border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-100 flex-shrink-0">
+            <HiLightningBolt className="h-6 w-6 text-white" />
           </div>
-        ) : (
-          // Collapsed Logo View
-          <div className="flex items-center justify-center w-full">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg overflow-hidden">
-              <img 
-                src={logoUrl} 
-                alt="Theka Online Logo" 
-                className="h-full w-full object-cover"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.parentElement.innerHTML = '<span class="font-bold text-white text-sm">T</span>';
-                }}
-              />
+          {shouldShowLabels && (
+            <div className="overflow-hidden whitespace-nowrap">
+              <span className="text-xl font-extrabold text-slate-900 tracking-tight">Theka</span>
+              <span className="text-xl font-medium text-slate-400">Admin</span>
             </div>
-          </div>
-        )}
-        
-        {/* Collapse Toggle (Desktop only) */}
-        {!isMobile && (
-          <button
-            onClick={onToggleCollapse}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-            aria-label={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-          >
-            {isCollapsed ? <HiChevronRight className="h-5 w-5" /> : <HiChevronLeft className="h-5 w-5" />}
-          </button>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Navigation Menu */}
-      <nav className="flex-1 p-2 md:p-4 space-y-1 overflow-y-auto">
-        {menuItems.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            onClick={handleItemClick}
-            className={({ isActive }) => `
-              flex items-center justify-between space-x-3 p-3 rounded-lg transition-colors
-              ${isActive 
-                ? 'bg-blue-600 text-white' 
-                : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-              }
-            `}
-            title={!shouldShowLabels ? item.label : ''}
-          >
-            <div className="flex items-center space-x-3 min-w-0">
-              <span className="text-xl flex-shrink-0">{item.icon}</span>
-              {shouldShowLabels && (
-                <span className="font-medium truncate">{item.label}</span>
-              )}
-            </div>
-            
-            {/* Badge */}
-            {item.badge && shouldShowLabels && (
-              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                {item.badge}
+      <nav className="flex-1 px-4 py-8 space-y-2 overflow-y-auto custom-scrollbar">
+        {menuItems.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              onClick={handleItemClick}
+              className={`
+                group flex items-center px-4 py-3.5 rounded-xl transition-all duration-200
+                ${isActive
+                  ? 'bg-indigo-50 text-indigo-700 shadow-sm'
+                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                }
+              `}
+              title={!shouldShowLabels ? item.label : ''}
+            >
+              <span className={`
+                text-2xl flex-shrink-0 transition-transform duration-200
+                ${isActive ? 'scale-110' : 'group-hover:scale-110'}
+              `}>
+                {item.icon}
               </span>
-            )}
-          </NavLink>
-        ))}
+              {shouldShowLabels && (
+                <span className="ml-4 font-bold text-[13px] tracking-wide">
+                  {item.label}
+                </span>
+              )}
+              {item.badge && shouldShowLabels && (
+                <span className="ml-auto bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  {item.badge}
+                </span>
+              )}
+              {isActive && shouldShowLabels && !item.badge && (
+                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-sm shadow-indigo-200"></div>
+              )}
+            </NavLink>
+          );
+        })}
       </nav>
 
-      {/* User Profile & Logout */}
-      <div className="p-4 border-t border-gray-800 bg-gray-850">
-        <div className={`flex items-center ${shouldShowLabels ? 'space-x-3' : 'justify-center'}`}>
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
-            {/* User Avatar with fallback to initials */}
-            <img 
-              src="https://ui-avatars.com/api/?name=Admin+User&background=random&color=fff&bold=true" 
-              alt="Admin User" 
-              className="h-full w-full object-cover"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.parentElement.innerHTML = '<span class="font-bold text-white">A</span>';
-              }}
-            />
-          </div>
-          
-          {shouldShowLabels && (
-            <div className="flex-1 min-w-0">
-              <p className="font-medium truncate">Admin User</p>
-              <p className="text-sm text-gray-400 truncate">Super Admin</p>
+      {/* User Profile & Logout Section */}
+      <div className="p-4 border-t border-slate-100">
+        {shouldShowLabels ? (
+          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/50">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center text-slate-400 border border-slate-100 shadow-sm">
+                <HiUserCircle className="h-7 w-7" />
+              </div>
+              <div className="overflow-hidden">
+                <p className="text-sm font-bold text-slate-900 truncate">Super Admin</p>
+                <p className="text-[10px] text-indigo-500 uppercase tracking-widest font-black leading-none mt-1">PRO Access</p>
+              </div>
             </div>
-          )}
-          
-          <button
-            onClick={handleLogout}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-colors flex-shrink-0"
-            title="Logout"
-            aria-label="Logout"
-          >
-            <HiLogout className="h-5 w-5" />
-          </button>
-        </div>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-all duration-200 shadow-sm"
+            >
+              <HiLogout className="h-4 w-4" />
+              <span>Sign Out</span>
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-10 w-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 border border-slate-100">
+              <HiUserCircle className="h-7 w-7" />
+            </div>
+            <button
+              onClick={handleLogout}
+              className="p-3 text-slate-400 hover:text-rose-500 hover:bg-slate-50 rounded-xl transition-all duration-200"
+              title="Logout"
+            >
+              <HiLogout className="h-6 w-6" />
+            </button>
+          </div>
+        )}
       </div>
     </aside>
   );

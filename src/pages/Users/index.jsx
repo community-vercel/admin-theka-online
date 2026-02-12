@@ -213,27 +213,26 @@ const Users = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-8 max-w-[1600px] mx-auto">
+      {/* Header Section - Premium Style */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="page-title">User Management</h1>
-          <p className="page-subtitle">Manage all users (Customers & Service Providers) of Theeka</p>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">User Management</h1>
+          <p className="text-slate-500 mt-1 font-medium">Manage and monitor all platform users across categories</p>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center gap-3">
           <button
             onClick={fetchUsers}
-            className="btn-secondary flex items-center justify-center space-x-2"
+            className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-all shadow-sm"
           >
-            <HiRefresh className="h-5 w-5" />
-            <span>Refresh</span>
+            <HiRefresh className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={() => {
               setSelectedUser(null);
               setIsModalOpen(true);
             }}
-            className="btn-primary flex items-center justify-center space-x-2"
+            className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all"
           >
             <HiUserAdd className="h-5 w-5" />
             <span>Add New User</span>
@@ -241,231 +240,134 @@ const Users = () => {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-        <StatsCard
-          compact
-          title="Total Users"
-          value={stats.totalUsers}
-          icon={<HiUserGroup />}
-          color="blue"
-          subtitle="All platform users"
-        />
-        <StatsCard
-          compact
-          title="Customers"
-          value={stats.totalCustomers}
-          icon={<HiUser />}
-          color="green"
-          subtitle="Service seekers"
-        />
-        <StatsCard
-          compact
-          title="Providers"
-          value={stats.totalProviders}
-          icon={<HiBriefcase />}
-          color="purple"
-          subtitle="Service givers"
-        />
-        <StatsCard
-          compact
-          title="Skilled"
-          value={stats.skilledProviders}
-          icon={<HiCheckCircle />}
-          color="yellow"
-          subtitle="Qualified pros"
-        />
-        <StatsCard
-          compact
-          title="Unskilled"
-          value={stats.unskilledProviders}
-          icon={<HiHome />}
-          color="indigo"
-          subtitle="General labor"
-        />
-        <StatsCard
-          compact
-          title="New Today"
-          value={stats.newToday}
-          icon={<HiPlus />}
-          color="red"
-          subtitle="Recent signups"
-        />
+      {/* Stats Quick View */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+        <StatsCard compact title="Total" value={stats.totalUsers} icon={<HiUserGroup />} color="blue" />
+        <StatsCard compact title="Customers" value={stats.totalCustomers} icon={<HiUser />} color="emerald" />
+        <StatsCard compact title="Providers" value={stats.totalProviders} icon={<HiBriefcase />} color="indigo" />
+        <StatsCard compact title="Skilled" value={stats.skilledProviders} icon={<HiCheckCircle />} color="violet" />
+        <StatsCard compact title="Unskilled" value={stats.unskilledProviders} icon={<HiHome />} color="amber" />
+        <StatsCard compact title="Today" value={stats.newToday} icon={<HiPlus />} color="rose" />
       </div>
 
-      {/* Filters & Search */}
+      {/* Modern Filter & Search Bar */}
       <div className="flex flex-col lg:flex-row gap-4">
-        <div className="flex-1 relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <HiSearch className="h-5 w-5 text-gray-400" />
+        <div className="flex-1 relative group">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <HiSearch className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
           </div>
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search users..."
-            className="input-field pl-10"
+            placeholder="Search by name, email, phone or category..."
+            className="input-field pl-12 bg-white/50 focus:bg-white border-slate-200"
           />
         </div>
-        <div className="flex items-center space-x-2 w-full lg:w-auto">
-          <HiFilter className="h-5 w-5 text-gray-500 shrink-0" />
+        <div className="flex items-center gap-3 min-w-[200px]">
+          <div className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-400">
+            <HiFilter className="h-5 w-5" />
+          </div>
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="input-field flex-1 lg:w-48"
+            className="input-field bg-white border-slate-200 font-semibold text-slate-700"
           >
-            <option value="all">All Users</option>
-            <option value="customers">Customers</option>
-            <option value="service_providers">Providers</option>
-            <option value="skilled">Skilled</option>
-            <option value="unskilled">Unskilled</option>
-            <option value="active">Active</option>
-            <option value="pending">Pending</option>
+            <option value="all">All Access Levels</option>
+            <option value="customers">Customers Only</option>
+            <option value="service_providers">All Providers</option>
+            <option value="skilled">Skilled Workers</option>
+            <option value="unskilled">General Labor</option>
+            <option value="active">Active Accounts</option>
+            <option value="pending">Pending Review</option>
             <option value="inactive">Inactive</option>
-            <option value="verified">Verified</option>
           </select>
         </div>
       </div>
 
-      {/* Users Table */}
-      <div className="card overflow-hidden">
+      {/* Users Table Card */}
+      <div className="card-premium overflow-hidden">
         {loading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="flex flex-col items-center justify-center h-80 gap-4">
+            <div className="relative">
+              <div className="h-12 w-12 rounded-full border-4 border-slate-100 border-t-indigo-600 animate-spin"></div>
+            </div>
+            <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Syncing User Data...</p>
           </div>
         ) : filteredUsers.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <HiSearch className="h-12 w-12 text-gray-400" />
+          <div className="text-center py-20">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-slate-50 text-slate-300 rounded-3xl mb-6">
+              <HiSearch className="h-10 w-10" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
-            <p className="text-gray-600">Try adjusting your search or filter criteria</p>
+            <h3 className="text-xl font-bold text-slate-900">No users found</h3>
+            <p className="text-slate-500 mt-2">We couldn't find any results matching your current criteria.</p>
+            <button onClick={() => { setSearch(''); setFilter('all'); }} className="mt-6 text-indigo-600 font-bold hover:underline">Clear all filters</button>
           </div>
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="w-full">
                 <thead>
-                  <tr className="bg-gray-50">
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      User
-                    </th>
-                    <th className="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Type & Category
-                    </th>
-                    <th className="hidden md:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Contact
-                    </th>
-                    <th className="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Location
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="hidden xl:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Join Date
-                    </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
+                  <tr className="bg-slate-50/50 border-b border-slate-100">
+                    <th className="px-6 py-4 text-left text-[11px] font-black text-slate-400 uppercase tracking-widest">Identity</th>
+                    <th className="hidden sm:table-cell px-6 py-4 text-left text-[11px] font-black text-slate-400 uppercase tracking-widest">Specialization</th>
+                    <th className="hidden md:table-cell px-6 py-4 text-left text-[11px] font-black text-slate-400 uppercase tracking-widest">Network</th>
+                    <th className="px-6 py-4 text-left text-[11px] font-black text-slate-400 uppercase tracking-widest">Standing</th>
+                    <th className="px-6 py-4 text-right text-[11px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="divide-y divide-slate-50">
                   {currentUsers.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-4">
-                        <div className="flex items-center">
-                          <div className="h-9 w-9 flex-shrink-0">
-                            <div className={`h-9 w-9 rounded-full flex items-center justify-center text-white font-bold text-sm ${user.userType === 'customer'
-                                ? 'bg-gradient-to-r from-blue-500 to-blue-600'
-                                : user.serviceType === 'skilled'
-                                  ? 'bg-gradient-to-r from-purple-500 to-purple-600'
-                                  : 'bg-gradient-to-r from-indigo-500 to-indigo-600'
-                              }`}>
-                              {user.name?.charAt(0)?.toUpperCase() || 'U'}
-                            </div>
+                    <tr key={user.id} className="group hover:bg-slate-50/50 transition-colors">
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-4">
+                          <div className={`h-11 w-11 rounded-2xl flex items-center justify-center text-white font-black shadow-lg ${user.userType === 'customer'
+                            ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-indigo-100'
+                            : 'bg-gradient-to-br from-purple-500 to-purple-600 shadow-purple-100'
+                            }`}>
+                            {user.name?.charAt(0)?.toUpperCase()}
                           </div>
-                          <div className="ml-3 min-w-0">
-                            <div className="text-sm font-medium text-gray-900 break-words">
-                              {user.name}
-                            </div>
-                            <div className="text-xs text-gray-500 sm:hidden">
-                              {user.userType === 'customer' ? 'Customer' : 'Provider'}
-                            </div>
+                          <div className="min-w-0">
+                            <p className="font-bold text-slate-900 truncate group-hover:text-indigo-600 transition-colors">{user.name}</p>
+                            <p className="text-[11px] text-slate-400 uppercase font-black tracking-tight mt-0.5">{user.userType}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="hidden sm:table-cell px-4 py-4">
-                        <div className="space-y-1">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${getUserTypeColor(user.userType, user.serviceType)
-                            }`}>
-                            {user.userType === 'customer'
-                              ? 'Customer'
-                              : user.serviceType === 'skilled'
-                                ? 'Skilled'
-                                : 'Unskilled'
-                            }
+                      <td className="hidden sm:table-cell px-6 py-5">
+                        <div className="space-y-1.5">
+                          <span className={`status-badge ${user.serviceType === 'skilled' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-600'}`}>
+                            {user.serviceType || 'Standard'}
                           </span>
-                          {user.serviceCategory && (
-                            <div className="text-xs text-gray-600 break-words max-w-[150px]">
-                              {user.serviceCategory}
+                          <p className="text-xs font-bold text-slate-500 truncate max-w-[180px]">{user.serviceCategory || 'No Category'}</p>
+                        </div>
+                      </td>
+                      <td className="hidden md:table-cell px-6 py-5">
+                        <p className="text-sm font-semibold text-slate-700">{user.phone}</p>
+                        <p className="text-xs text-slate-400 mt-1">{user.city}</p>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex flex-col gap-2">
+                          <span className={`status-badge w-fit ${user.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                            {user.status}
+                          </span>
+                          {user.isVerified && (
+                            <div className="flex items-center gap-1 text-indigo-500 font-bold text-[10px] uppercase tracking-wider">
+                              <HiCheckCircle className="h-3.5 w-3.5" />
+                              <span>Verified</span>
                             </div>
                           )}
                         </div>
                       </td>
-                      <td className="hidden md:table-cell px-4 py-4">
-                        <div className="text-sm text-gray-900 truncate max-w-[150px]">
-                          {user.email}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {user.phone}
-                        </div>
-                      </td>
-                      <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {user.city}
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <div className="flex flex-col space-y-1">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${getStatusColor(user.status)
-                            }`}>
-                            {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                          </span>
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${user.isVerified
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                            }`}>
-                            {user.isVerified ? '✓ Verified' : 'Pending'}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="hidden xl:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {user.formattedDate}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-right">
-                        <div className="flex items-center justify-end space-x-1">
-                          <Link
-                            to={`/users/${user.id}`}
-                            state={{ user }}
-                            className="p-1.5 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
-                            title="View Details"
-                          >
-                            <HiEye className="h-4 w-4" />
+                      <td className="px-6 py-5">
+                        <div className="flex items-center justify-end gap-1">
+                          <Link to={`/users/${user.id}`} state={{ user }} className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+                            <HiEye className="h-5 w-5" />
                           </Link>
-                          <button
-                            onClick={() => handleEdit(user)}
-                            className="p-1.5 text-yellow-600 hover:text-yellow-900 hover:bg-yellow-50 rounded-lg transition-colors"
-                            title="Edit User"
-                          >
-                            <HiPencil className="h-4 w-4" />
+                          <button onClick={() => handleEdit(user)} className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all">
+                            <HiPencil className="h-5 w-5" />
                           </button>
-                          <button
-                            onClick={() => handleDelete(user.id, user.name, user.userType)}
-                            className="p-1.5 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Delete User"
-                          >
-                            <HiTrash className="h-4 w-4" />
+                          <button onClick={() => handleDelete(user.id, user.name, user.userType)} className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all">
+                            <HiTrash className="h-5 w-5" />
                           </button>
                         </div>
                       </td>
@@ -475,62 +377,38 @@ const Users = () => {
               </table>
             </div>
 
-            {/* Pagination */}
+            {/* Premium Pagination */}
             {totalPages > 1 && (
-              <div className="px-6 py-4 border-t border-gray-200">
+              <div className="px-8 py-5 border-t border-slate-50 bg-slate-50/30">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-700">
-                    Showing <span className="font-medium">{indexOfFirstUser + 1}</span> to{' '}
-                    <span className="font-medium">
-                      {Math.min(indexOfLastUser, filteredUsers.length)}
-                    </span> of{' '}
-                    <span className="font-medium">{filteredUsers.length}</span> users
-                  </div>
-                  <div className="flex space-x-1">
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    Showing <span className="text-slate-900">{indexOfFirstUser + 1}-{Math.min(indexOfLastUser, filteredUsers.length)}</span> of {filteredUsers.length}
+                  </p>
+                  <div className="flex items-center gap-2">
                     <button
-                      onClick={() => paginate(Math.max(1, currentPage - 1))}
+                      onClick={() => paginate(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className={`px-3 py-1 border border-gray-300 rounded-md text-sm transition-colors ${currentPage === 1
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'hover:bg-gray-50'
-                        }`}
+                      className="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-xl border border-slate-200 disabled:opacity-30 hover:bg-white"
                     >
-                      Previous
+                      Prev
                     </button>
-
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      let pageNum;
-                      if (totalPages <= 5) {
-                        pageNum = i + 1;
-                      } else if (currentPage <= 3) {
-                        pageNum = i + 1;
-                      } else if (currentPage >= totalPages - 2) {
-                        pageNum = totalPages - 4 + i;
-                      } else {
-                        pageNum = currentPage - 2 + i;
-                      }
-
-                      return (
-                        <button
-                          key={pageNum}
-                          onClick={() => paginate(pageNum)}
-                          className={`px-3 py-1 border rounded-md text-sm transition-colors ${currentPage === pageNum
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'border-gray-300 hover:bg-gray-50'
-                            }`}
-                        >
-                          {pageNum}
-                        </button>
-                      );
-                    })}
-
+                    <div className="flex items-center gap-1 px-1">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1).map((p, i, arr) => (
+                        <div key={p} className="flex items-center gap-1">
+                          {i > 0 && arr[i - 1] !== p - 1 && <span className="text-slate-300">...</span>}
+                          <button
+                            onClick={() => paginate(p)}
+                            className={`h-9 w-9 rounded-xl text-xs font-bold transition-all ${currentPage === p ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-500 hover:bg-white'}`}
+                          >
+                            {p}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                     <button
-                      onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
+                      onClick={() => paginate(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className={`px-3 py-1 border border-gray-300 rounded-md text-sm transition-colors ${currentPage === totalPages
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'hover:bg-gray-50'
-                        }`}
+                      className="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-xl border border-slate-200 disabled:opacity-30 hover:bg-white"
                     >
                       Next
                     </button>
@@ -540,64 +418,6 @@ const Users = () => {
             )}
           </>
         )}
-      </div>
-
-      {/* User Type Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-4 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm opacity-90">Customers</p>
-              <p className="text-xl font-bold">{stats.totalCustomers}</p>
-            </div>
-            <HiUser className="h-8 w-8 opacity-80" />
-          </div>
-          <div className="mt-2 text-xs opacity-90">
-            {Math.round((stats.totalCustomers / stats.totalUsers) * 100) || 0}% of total users
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-4 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm opacity-90">Skilled Workers</p>
-              <p className="text-xl font-bold">{stats.skilledProviders}</p>
-            </div>
-          </div>
-          <div className="mt-2 text-xs opacity-90">
-            {stats.totalProviders > 0 ? Math.round((stats.skilledProviders / stats.totalProviders) * 100) : 0}% of providers
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg p-4 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm opacity-90">Unskilled Workers</p>
-              <p className="text-xl font-bold">{stats.unskilledProviders}</p>
-            </div>
-            <HiHome className="h-8 w-8 opacity-80" />
-          </div>
-          <div className="mt-2 text-xs opacity-90">
-            {stats.totalProviders > 0 ? Math.round((stats.unskilledProviders / stats.totalProviders) * 100) : 0}% of providers
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-4 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm opacity-90">Verification Rate</p>
-              <p className="text-xl font-bold">
-                {stats.totalProviders > 0
-                  ? Math.round((stats.totalProviders - filteredUsers.filter(u => u.userType === 'service_provider' && u.status === 'pending').length) / stats.totalProviders * 100)
-                  : 0}%
-              </p>
-            </div>
-            <HiCheckCircle className="h-8 w-8 opacity-80" />
-          </div>
-          <div className="mt-2 text-xs opacity-90">
-            Service providers verified
-          </div>
-        </div>
       </div>
 
       {/* User Modal */}

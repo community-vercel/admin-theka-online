@@ -435,365 +435,240 @@ const Verification = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-8 max-w-[1600px] mx-auto">
+      {/* Header Section - Premium Style */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Service Provider Verification</h1>
-          <p className="text-sm sm:text-base text-gray-600">Review and manage service provider account requests</p>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Verification Center</h1>
+          <p className="text-slate-500 mt-1 font-medium">Verify and authenticate service provider credentials</p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={handleExport}
-            className="btn-secondary flex items-center space-x-2"
+            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-50 transition-all"
           >
             <HiDownload className="h-4 w-4" />
-            <span className="hidden sm:inline">Export</span>
+            <span>Export Registry</span>
           </button>
 
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="btn-secondary flex items-center space-x-2"
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all ${showFilters ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
           >
             <HiFilter className="h-4 w-4" />
-            <span className="hidden sm:inline">Filters</span>
-            {showFilters ? <HiChevronUp className="h-4 w-4" /> : <HiChevronDown className="h-4 w-4" />}
+            <span>Advanced Filters</span>
           </button>
 
-          <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+          <div className="flex items-center bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
             <button
               onClick={() => setViewMode('grid')}
-              className={`px-3 py-2 ${viewMode === 'grid' ? 'bg-gray-100 text-gray-900' : 'text-gray-600'}`}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'grid' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-600'}`}
             >
               Grid
             </button>
-
+            <button
+              onClick={() => setViewMode('table')}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'table' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-600'}`}
+            >
+              List
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Filters Panel */}
+      {/* Modern Filters Panel */}
       {showFilters && (
-        <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+        <div className="card-premium p-6 sm:p-8 bg-slate-50/50 border-slate-100 shadow-inner">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Domain</label>
               <select
                 value={filters.category}
                 onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="input-field bg-white border-slate-200 font-semibold"
               >
-                <option value="all">All Categories</option>
+                <option value="all">All Service Categories</option>
                 <option value="Carpenter">Carpenter</option>
                 <option value="Electrician">Electrician</option>
                 <option value="Plumber">Plumber</option>
                 <option value="Painter">Painter</option>
-                {/* Add more categories */}
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Timeframe</label>
               <select
                 value={filters.date}
                 onChange={(e) => setFilters(prev => ({ ...prev, date: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="input-field bg-white border-slate-200 font-semibold"
               >
-                <option value="all">All Time</option>
-                <option value="today">Today</option>
-                <option value="week">Last 7 Days</option>
+                <option value="all">Entire History</option>
+                <option value="today">Today Only</option>
+                <option value="week">Past 7 Days</option>
                 <option value="month">Last 30 Days</option>
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Arrangement</label>
               <select
                 value={filters.sortBy}
                 onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="input-field bg-white border-slate-200 font-semibold"
               >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="name">Name A-Z</option>
+                <option value="newest">Recent First</option>
+                <option value="oldest">Chronological</option>
+                <option value="name">Alphabetical</option>
               </select>
             </div>
           </div>
         </div>
       )}
 
-      {/* Bulk Actions Bar */}
+      {/* Bulk Actions Command Bar */}
       {selectedRequests.length > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="flex items-center space-x-2">
-            <span className="font-medium text-blue-800">
-              {selectedRequests.length} request{selectedRequests.length !== 1 ? 's' : ''} selected
-            </span>
-            <button
-              onClick={() => setSelectedRequests([])}
-              className="text-sm text-blue-600 hover:text-blue-800"
-            >
-              Clear selection
-            </button>
-          </div>
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 transform animate-in slide-in-from-bottom-10 duration-500">
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-6 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-xl">
+            <div className="flex items-center gap-3 border-r border-slate-100 pr-6 mr-2">
+              <span className="h-6 w-6 rounded-full bg-indigo-600 flex items-center justify-center text-[10px] font-black text-white">
+                {selectedRequests.length}
+              </span>
+              <span className="text-sm font-bold text-slate-900 whitespace-nowrap">Requests Selected</span>
+              <button
+                onClick={() => setSelectedRequests([])}
+                className="text-[10px] font-black text-slate-400 hover:text-indigo-600 uppercase tracking-widest ml-2"
+              >
+                Cancel
+              </button>
+            </div>
 
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={handleBulkApprove}
-              className="btn-success flex items-center space-x-2"
-            >
-              <HiCheck className="h-4 w-4" />
-              <span>Approve Selected</span>
-            </button>
-            <button
-              onClick={handleBulkReject}
-              className="btn-danger flex items-center space-x-2"
-            >
-              <HiX className="h-4 w-4" />
-              <span>Reject Selected</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleBulkApprove}
+                className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white rounded-xl font-bold text-xs hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-900/20"
+              >
+                <HiCheck className="h-4 w-4" />
+                <span>Bulk Approve</span>
+              </button>
+              <button
+                onClick={handleBulkReject}
+                className="flex items-center gap-2 px-5 py-2.5 bg-rose-500 text-white rounded-xl font-bold text-xs hover:bg-rose-600 transition-all shadow-lg shadow-rose-900/20"
+              >
+                <HiX className="h-4 w-4" />
+                <span>Bulk Reject</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Filter Tabs - Mobile Responsive */}
-      <div className="overflow-x-auto">
-        <div className="flex space-x-2 border-b border-gray-200 min-w-max">
+      {/* Segmented Filter Tabs */}
+      <div className="flex bg-slate-100/50 p-1.5 rounded-2xl w-fit">
+        {['all', 'pending', 'accepted', 'rejected'].map((status) => (
           <button
-            onClick={() => setFilter('all')}
-            className={`px-3 sm:px-4 py-2 font-medium rounded-t-lg transition-colors whitespace-nowrap ${filter === 'all'
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
-              }`}
+            key={status}
+            onClick={() => setFilter(status)}
+            className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${filter === status ? 'bg-white text-indigo-600 shadow-sm border border-slate-100' : 'text-slate-500 hover:text-slate-700'}`}
           >
-            All <span className="hidden sm:inline">({stats.total})</span>
+            {status} {status === 'pending' && stats.pending > 0 && <span className="ml-1.5 text-amber-500">•</span>}
           </button>
-          <button
-            onClick={() => setFilter('pending')}
-            className={`px-3 sm:px-4 py-2 font-medium rounded-t-lg transition-colors flex items-center space-x-1 sm:space-x-2 whitespace-nowrap ${filter === 'pending'
-                ? 'text-yellow-600 border-b-2 border-yellow-600'
-                : 'text-gray-500 hover:text-gray-700'
-              }`}
-          >
-            <HiClock className="h-4 w-4" />
-            <span>Pending</span>
-            <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
-              {stats.pending}
-            </span>
-          </button>
-          <button
-            onClick={() => setFilter('accepted')}
-            className={`px-3 sm:px-4 py-2 font-medium rounded-t-lg transition-colors whitespace-nowrap ${filter === 'accepted'
-                ? 'text-green-600 border-b-2 border-green-600'
-                : 'text-gray-500 hover:text-gray-700'
-              }`}
-          >
-            Accepted <span className="hidden sm:inline">({stats.accepted})</span>
-          </button>
-          <button
-            onClick={() => setFilter('rejected')}
-            className={`px-3 sm:px-4 py-2 font-medium rounded-t-lg transition-colors whitespace-nowrap ${filter === 'rejected'
-                ? 'text-red-600 border-b-2 border-red-600'
-                : 'text-gray-500 hover:text-gray-700'
-              }`}
-          >
-            Rejected <span className="hidden sm:inline">({stats.rejected})</span>
-          </button>
-        </div>
+        ))}
       </div>
 
-      {/* Stats Summary - Responsive Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        <StatsCard
-          compact
-          title="Total Providers"
-          value={stats.total}
-          icon={<HiUser />}
-          color="blue"
-          subtitle="All platform providers"
-        />
-        <StatsCard
-          compact
-          title="Pending"
-          value={stats.pending}
-          icon={<HiClock />}
-          color="yellow"
-          subtitle="Awaiting review"
-          trend={stats.pending > 0 ? "up" : null}
-          change={stats.pending > 0 ? "Action needed" : null}
-        />
-        <StatsCard
-          compact
-          title="Approved"
-          value={stats.accepted}
-          icon={<HiCheckCircle />}
-          color="green"
-          subtitle="Verified active"
-        />
-        <StatsCard
-          compact
-          title="Rejected"
-          value={stats.rejected}
-          icon={<HiXCircle />}
-          color="red"
-          subtitle="Failed requirements"
-        />
+      {/* Performance Summary Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatsCard compact title="Repository" value={stats.total} icon={<HiUser />} color="blue" />
+        <StatsCard compact title="Action Required" value={stats.pending} icon={<HiClock />} color="amber" pulse={stats.pending > 0} />
+        <StatsCard compact title="Verified" value={stats.accepted} icon={<HiCheckCircle />} color="emerald" />
+        <StatsCard compact title="Restricted" value={stats.rejected} icon={<HiXCircle />} color="rose" />
       </div>
 
-      {/* Requests Content */}
+      {/* Main Content Viewport */}
       {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="flex flex-col items-center justify-center h-80 gap-4">
+          <div className="h-12 w-12 rounded-full border-4 border-slate-100 border-t-indigo-600 animate-spin"></div>
+          <p className="text-slate-500 font-black uppercase tracking-widest text-[10px]">Processing Registry...</p>
         </div>
       ) : filteredRequests.length === 0 ? (
-        <div className="text-center py-8 sm:py-12">
-          <div className="mx-auto w-16 h-16 sm:w-24 sm:h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-            <HiCheckCircle className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400" />
+        <div className="card-premium py-20 text-center">
+          <div className="inline-flex items-center justify-center w-24 h-24 bg-slate-50 text-slate-200 rounded-[2.5rem] mb-6 shadow-inner">
+            <HiCheckCircle className="h-12 w-12" />
           </div>
-          <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No verification requests</h3>
-          <p className="text-sm text-gray-600">All verification requests have been processed.</p>
+          <h3 className="text-2xl font-black text-slate-800 tracking-tight">System Operational</h3>
+          <p className="text-slate-400 mt-2 font-semibold">All verification requests have been successfully finalized.</p>
         </div>
       ) : viewMode === 'grid' ? (
-        // Grid View - Responsive
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filteredRequests.map((request) => (
-            <div key={request.id} className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-lg transition-shadow">
-              {/* Selection Checkbox for pending requests */}
-              {request.accountStatus === 'pending' && (
-                <div className="mb-4">
-                  <input
-                    type="checkbox"
-                    checked={selectedRequests.includes(request.id)}
-                    onChange={() => handleSelectRequest(request.id)}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                </div>
-              )}
-
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                    {request.name?.charAt(0) || 'U'}
+            <div key={request.id} className="card-premium card-hover p-6 group">
+              <div className="flex items-start justify-between gap-4 mb-6">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-0.5 shadow-lg shadow-indigo-100 shrink-0">
+                    <div className="h-full w-full rounded-[14px] bg-white flex items-center justify-center text-indigo-600 font-black text-xl">
+                      {request.name?.charAt(0)}
+                    </div>
                   </div>
                   <div className="min-w-0">
-                    <h3 className="font-semibold text-gray-900 truncate">{request.name}</h3>
-                    <p className="text-xs sm:text-sm text-gray-600 truncate">{request.email}</p>
+                    <h3 className="font-bold text-slate-900 truncate text-lg tracking-tight">{request.name}</h3>
+                    <p className="text-[11px] text-slate-400 mt-0.5 truncate uppercase font-black tracking-tight">{request.serviceCategory}</p>
                   </div>
                 </div>
-                <div className="flex flex-col items-end space-y-1">
-                  <div className="flex items-center space-x-2">
-                    {getStatusIcon(request.accountStatus)}
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(request.accountStatus)}`}>
-                      {request.accountStatus.charAt(0).toUpperCase() + request.accountStatus.slice(1)}
-                    </span>
-                  </div>
-                  <span className="text-xs text-gray-500">{request.formattedDate}</span>
-                </div>
-              </div>
-
-              {/* Service Provider Details */}
-              <div className="space-y-3 mb-6">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex items-center space-x-2">
-                    <HiPhone className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 flex-shrink-0" />
-                    <span className="text-xs sm:text-sm truncate">{request.phone}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <HiLocationMarker className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 flex-shrink-0" />
-                    <span className="text-xs sm:text-sm truncate">{request.city}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <HiBriefcase className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm font-medium">{request.serviceCategory}</span>
-                  <span className="text-xs sm:text-sm text-gray-600">({request.serviceType})</span>
-                </div>
-
-                {request.subcategories && request.subcategories.length > 0 && (
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <HiTag className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
-                      <span className="text-xs sm:text-sm font-medium">Services:</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1 ml-5">
-                      {request.subcategories.slice(0, 3).map((sub, index) => (
-                        <span key={index} className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
-                          {sub}
-                        </span>
-                      ))}
-                      {request.subcategories.length > 3 && (
-                        <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
-                          +{request.subcategories.length - 3} more
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {request.reason && (
-                  <div className="bg-red-50 border border-red-100 rounded-lg p-3">
-                    <span className="text-xs sm:text-sm font-medium text-red-600">Rejection Reason:</span>
-                    <p className="text-xs sm:text-sm text-red-700 mt-1">{request.reason}</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Document Links */}
-              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                <p className="text-xs sm:text-sm font-medium text-gray-700 mb-2">Documents:</p>
-                <div className="flex flex-wrap gap-2">
-                  {request.cnicFront && (
-                    <a
-                      href={request.cnicFront}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 underline flex items-center space-x-1"
-                    >
-                      <HiDocumentText className="h-3 w-3" />
-                      <span>CNIC Front</span>
-                    </a>
-                  )}
-                  {request.cnicBack && (
-                    <a
-                      href={request.cnicBack}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 underline flex items-center space-x-1"
-                    >
-                      <HiDocumentText className="h-3 w-3" />
-                      <span>CNIC Back</span>
-                    </a>
+                <div className="flex flex-col items-end gap-2">
+                  <span className={`status-badge ${getStatusColor(request.accountStatus)}`}>
+                    {request.accountStatus}
+                  </span>
+                  {request.accountStatus === 'pending' && (
+                    <input
+                      type="checkbox"
+                      checked={selectedRequests.includes(request.id)}
+                      onChange={() => handleSelectRequest(request.id)}
+                      className="h-5 w-5 rounded border-slate-200 text-indigo-600 focus:ring-indigo-500/20 cursor-pointer"
+                    />
                   )}
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+              <div className="space-y-4 mb-6">
+                <div className="flex items-center gap-3 text-sm font-semibold text-slate-700 bg-slate-50/80 p-3 rounded-xl border border-slate-100">
+                  <div className="h-8 w-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-400">
+                    <HiPhone className="h-4 w-4" />
+                  </div>
+                  <span>{request.phone}</span>
+                </div>
+
+                <div className="flex items-center gap-3 text-sm font-semibold text-slate-700 bg-slate-50/80 p-3 rounded-xl border border-slate-100">
+                  <div className="h-8 w-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-400">
+                    <HiLocationMarker className="h-4 w-4" />
+                  </div>
+                  <span>{request.city}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-6 border-t border-slate-50">
                 <Link
                   to={`/verification/${request.id}`}
                   state={{ provider: request }}
-                  className="px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg text-sm flex items-center space-x-1"
+                  className="flex items-center gap-2 text-xs font-black uppercase text-slate-400 tracking-widest hover:text-indigo-600 transition-colors"
                 >
-                  <HiEye className="h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="hidden sm:inline">Details</span>
+                  <HiEye className="h-4 w-4" />
+                  <span>Inspect</span>
                 </Link>
 
                 {request.accountStatus === 'pending' && (
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleApprove(request.id)}
-                      className="px-3 py-2 bg-green-50 text-green-700 hover:bg-green-100 rounded-lg text-sm flex items-center space-x-1"
-                    >
-                      <HiCheck className="h-3 w-3 sm:h-4 sm:w-4" />
-                      <span>Approve</span>
-                    </button>
+                  <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleReject(request.id)}
-                      className="px-3 py-2 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg text-sm flex items-center space-x-1"
+                      className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
                     >
-                      <HiX className="h-3 w-3 sm:h-4 sm:w-4" />
-                      <span>Reject</span>
+                      <HiX className="h-6 w-6" />
+                    </button>
+                    <button
+                      onClick={() => handleApprove(request.id)}
+                      className="flex items-center gap-2 px-5 py-2 bg-emerald-500 text-white rounded-xl font-bold text-xs hover:bg-emerald-600 shadow-lg shadow-emerald-100 transition-all"
+                    >
+                      <HiCheck className="h-4 w-4" />
+                      <span>Approve</span>
                     </button>
                   </div>
                 )}
@@ -802,14 +677,8 @@ const Verification = () => {
           ))}
         </div>
       ) : (
-        // Table View
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          <DataTable
-            columns={tableColumns}
-            data={filteredRequests}
-            itemsPerPage={10}
-            responsiveBreakpoint="md"
-          />
+        <div className="card-premium overflow-hidden">
+          <DataTable data={filteredRequests} columns={tableColumns} />
         </div>
       )}
     </div>
