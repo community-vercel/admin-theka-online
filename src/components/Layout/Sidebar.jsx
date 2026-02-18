@@ -32,10 +32,10 @@ const Sidebar = ({ isMobile, onItemClick, isCollapsed = false, onToggleCollapse 
     { path: '/dashboard', icon: <HiHome />, label: 'Dashboard' },
     { path: '/users', icon: <HiUsers />, label: 'Users Management' },
     { path: '/verification', icon: <HiCheckCircle />, label: 'Verification', badge: '' },
+    { path: '/reviews', icon: <HiCheckCircle />, label: 'Reviews' },
     { path: '/ads', icon: <HiPhotograph />, label: 'Ads Management' },
     { path: '/settings', icon: <HiCog />, label: 'Settings' },
-    { path: '/db/health', icon: <HiDatabase />, label: 'DB Health' }, // Add this line
-
+    { path: '/db/health', icon: <HiDatabase />, label: 'DB Health' },
   ];
 
   const handleLogout = async () => {
@@ -63,21 +63,26 @@ const Sidebar = ({ isMobile, onItemClick, isCollapsed = false, onToggleCollapse 
   return (
     <aside className={`
       bg-white border-r border-slate-200/60
-      h-screen fixed left-0 top-0 z-40
+      h-screen fixed top-0 z-40
       transition-all duration-300 ease-in-out
-      ${isMobile ? 'w-72' : isCollapsed ? 'w-20' : 'w-64'}
+      ${isMobile ? 'right-0 w-72' : isCollapsed ? 'left-0 w-20' : 'left-0 w-64'}
       flex flex-col shadow-[0_0_20px_rgba(0,0,0,0.02)]
     `}>
       {/* Sidebar Header with Logo */}
       <div className="h-20 flex items-center px-6 border-b border-slate-100">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-100 flex-shrink-0">
-            <HiLightningBolt className="h-6 w-6 text-white" />
+          <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-sm border border-slate-100 flex-shrink-0 p-1">
+            <img
+              src={logoUrl}
+              alt="Logo"
+              className="w-full h-full object-contain"
+              referrerPolicy="no-referrer"
+            />
           </div>
           {shouldShowLabels && (
             <div className="overflow-hidden whitespace-nowrap">
               <span className="text-xl font-extrabold text-slate-900 tracking-tight">Theka</span>
-              <span className="text-xl font-medium text-slate-400">Admin</span>
+              <span className="text-xl font-medium text-slate-400">Online</span>
             </div>
           )}
         </div>

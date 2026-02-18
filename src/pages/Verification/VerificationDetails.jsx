@@ -122,10 +122,10 @@ const VerificationDetail = () => {
               <p className="text-gray-600">{provider.email}</p>
               <div className="flex items-center space-x-4 mt-2">
                 <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                  {provider.serviceCategory}
+                  {provider.serviceCategory || 'No Category'}
                 </span>
                 <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
-                  {provider.serviceType}
+                  {provider.serviceType || 'Specialization'}
                 </span>
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${provider.accountStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                   provider.accountStatus === 'accepted' ? 'bg-green-100 text-green-800' :
@@ -152,9 +152,9 @@ const VerificationDetail = () => {
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Service Information</h3>
                 <div className="mt-2 space-y-2">
-                  <p className="text-gray-900"><span className="font-medium">Category:</span> {provider.serviceCategory}</p>
-                  <p className="text-gray-900"><span className="font-medium">Type:</span> {provider.serviceType}</p>
-                  <p className="text-gray-900"><span className="font-medium">Total Services:</span> {provider.totalSubcategories}</p>
+                  <p className="text-gray-900"><span className="font-medium">Category:</span> {provider.serviceCategory || 'No Category'}</p>
+                  <p className="text-gray-900"><span className="font-medium">Type:</span> {provider.serviceType || 'Specialization'}</p>
+                  <p className="text-gray-900"><span className="font-medium">Total Services:</span> {provider.totalSubcategories || 0}</p>
                 </div>
               </div>
             </div>

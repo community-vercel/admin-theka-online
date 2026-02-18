@@ -1,5 +1,6 @@
 // src/pages/Dashboard.jsx
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { dashboardService } from '../services/dashboardService';
 import StatsCard from '../components/Common/StatsCard';
 import {
@@ -8,7 +9,8 @@ import {
   HiClock,
   HiUserGroup,
   HiBriefcase,
-  HiCalendar
+  HiCalendar,
+  HiStar
 } from 'react-icons/hi';
 import {
   LineChart,
@@ -29,6 +31,7 @@ import {
 } from 'recharts';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalCustomers: 0,
@@ -42,6 +45,10 @@ const Dashboard = () => {
   const [verificationDistribution, setVerificationDistribution] = useState([]);
   const [recentRegistrations, setRecentRegistrations] = useState([]);
   const [registrationTrend, setRegistrationTrend] = useState([]);
+  const [customerReviews, setCustomerReviews] = useState([]);
+  const [providerReviews, setProviderReviews] = useState([]);
+  const [activeReviewTab, setActiveReviewTab] = useState('customer');
+  const [averageRating, setAverageRating] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -59,14 +66,16 @@ const Dashboard = () => {
         categories,
         verification,
         recent,
-        trend
+        trend,
+        reviewData
       ] = await Promise.all([
         dashboardService.getTotalCounts(),
         dashboardService.getCityDistribution(),
         dashboardService.getServiceCategoryDistribution(),
         dashboardService.getVerificationDistribution(),
         dashboardService.getRecentRegistrations(),
-        dashboardService.getRegistrationTrend()
+        dashboardService.getRegistrationTrend(),
+        dashboardService.getRecentReviews()
       ]);
 
       setStats({
@@ -83,6 +92,9 @@ const Dashboard = () => {
       setVerificationDistribution(verification);
       setRecentRegistrations(recent);
       setRegistrationTrend(trend);
+      setCustomerReviews(reviewData.customerReviews);
+      setProviderReviews(reviewData.providerReviews);
+      setAverageRating(reviewData.averageRating);
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -159,7 +171,7 @@ const Dashboard = () => {
       </div>
 
       {/* Stats Grid - Using premium spacing */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
         <StatsCard
           title="Total Users"
           value={stats.totalUsers.toLocaleString()}
@@ -190,10 +202,18 @@ const Dashboard = () => {
           color="purple"
           subtitle={`${Math.round((stats.verifiedUsers / stats.totalUsers) * 100) || 0}% of total platform`}
         />
+        <StatsCard
+          title="Avg. Platform Rating"
+          value={`${averageRating} / 5`}
+          icon={<HiStar className="h-6 w-6" />}
+          color="amber"
+          subtitle={`Based on ${customerReviews.length + providerReviews.length} latest interactions`}
+          trend={parseFloat(averageRating) >= 4.5 ? "up" : null}
+        />
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
         {/* User Growth Chart */}
         <div className="card-premium p-6 sm:p-8">
           <div className="flex items-center justify-between mb-8">
@@ -291,7 +311,7 @@ const Dashboard = () => {
       </div>
 
       {/* Second Row Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
         <div className="card-premium p-6 sm:p-8">
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -376,86 +396,110 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Recent Registrations Table */}
+      {/* Recent Mutual Reviews Section */}
       <div className="card-premium overflow-hidden">
-        <div className="p-6 sm:p-8 border-b border-slate-100 flex items-center justify-between">
+        <div className="p-6 sm:p-8 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h3 className="text-lg font-bold text-slate-900">Recent Registrations</h3>
-            <p className="text-slate-500 text-sm font-medium">Latest sign-ups in the last 30 days</p>
+            <h3 className="text-lg font-bold text-slate-900">Mutual Platform Feedback</h3>
+            <p className="text-slate-500 text-sm font-medium">Reviews from both Customers and Providers</p>
           </div>
-          <button onClick={fetchDashboardData} className="p-2.5 rounded-xl bg-slate-50 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm">
-            <HiCalendar className="h-6 w-6" />
-          </button>
+
+          <div className="flex bg-slate-100 p-1 rounded-xl self-start">
+            <button
+              onClick={() => setActiveReviewTab('customer')}
+              className={`px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${activeReviewTab === 'customer' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Cust ↔ Prov
+            </button>
+            <button
+              onClick={() => setActiveReviewTab('provider')}
+              className={`px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${activeReviewTab === 'provider' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Prov ↔ Cust
+            </button>
+          </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-slate-50/50">
-                <th className="px-8 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
-                <th className="px-8 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Type</th>
-                <th className="px-8 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">City</th>
-                <th className="px-8 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Registered At</th>
-                <th className="px-8 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {recentRegistrations.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="px-8 py-12 text-center text-slate-400 font-medium">No recent registrations found</td>
-                </tr>
-              ) : (
-                recentRegistrations.map((user) => (
-                  <tr key={user.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-8 py-4">
-                      <div className="flex items-center">
-                        <div className={`h-9 w-9 rounded-xl flex items-center justify-center text-white text-xs font-black shadow-lg ${user.type === 'customer' ? 'bg-indigo-500 shadow-indigo-100' : 'bg-emerald-500 shadow-emerald-100'}`}>
-                          {user.name?.charAt(0)?.toUpperCase()}
-                        </div>
-                        <div className="ml-4 min-w-0">
-                          <p className="text-sm font-bold text-slate-900 truncate">{user.name}</p>
-                          <p className="text-[10px] text-slate-400 font-medium truncate uppercase">ID: {user.id.substring(0, 8)}</p>
-                        </div>
+
+        <div className="p-4 sm:p-6 lg:p-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {(activeReviewTab === 'customer' ? customerReviews : providerReviews).length === 0 ? (
+              <div className="col-span-full py-16 text-center bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
+                <div className="h-16 w-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                  <HiCheckCircle className="h-8 w-8 text-slate-200" />
+                </div>
+                <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">No {activeReviewTab} reviews found yet</p>
+              </div>
+            ) : (
+              (activeReviewTab === 'customer' ? customerReviews : providerReviews).map((review) => (
+                <div key={review.id} className="p-6 bg-white border border-slate-100 rounded-2xl hover:shadow-xl transition-all group flex flex-col relative overflow-hidden">
+                  {/* Visual Accent */}
+                  <div className={`absolute top-0 left-0 w-1.5 h-full ${activeReviewTab === 'customer' ? 'bg-indigo-500' : 'bg-emerald-500'}`}></div>
+
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`h-11 w-11 rounded-xl flex items-center justify-center text-sm font-black border overflow-hidden ${activeReviewTab === 'customer' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}`}>
+                        {review.imageUrl ? (
+                          <img src={review.imageUrl} alt={review.reviewerName} className="h-full w-full object-cover" />
+                        ) : (
+                          review.reviewerName?.charAt(0)
+                        )}
                       </div>
-                    </td>
-                    <td className="px-8 py-4">
-                      <span className={`px-2.5 py-1 text-[10px] font-black uppercase rounded-lg tracking-tight ${user.type === 'customer' ? 'bg-indigo-50 text-indigo-700' : 'bg-emerald-50 text-emerald-700'}`}>
-                        {user.type}
-                      </span>
-                    </td>
-                    <td className="px-8 py-4 text-sm font-semibold text-slate-600">{user.city}</td>
-                    <td className="px-8 py-4 text-sm font-semibold text-slate-600">{formatDate(user.date)}</td>
-                    <td className="px-8 py-4">
-                      <span className="flex items-center gap-1.5 text-[10px] font-black uppercase text-emerald-600">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                        Active
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                      <div className="min-w-0">
+                        <p className="text-sm font-black text-slate-900 truncate">{review.reviewerName}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">to {review.recipientName}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 bg-amber-50 text-amber-600 px-2.5 py-1 rounded-lg border border-amber-100 shadow-sm">
+                      <HiStar className="h-3.5 w-3.5" />
+                      <span className="text-xs font-black">{review.rating}</span>
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+                      Service: {review.serviceName}
+                    </span>
+                  </div>
+
+                  <p className="text-sm text-slate-600 font-medium leading-relaxed italic flex-grow">
+                    "{review.review}"
+                  </p>
+
+                  <div className="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{formatDate(review.date)}</span>
+                    <button
+                      onClick={() => navigate(`/reviews/${review.id}`)}
+                      className="text-[10px] font-black text-indigo-500 hover:text-indigo-700 uppercase tracking-widest transition-colors flex items-center gap-1 group/btn"
+                    >
+                      Full Record
+                      <div className="w-1 h-1 rounded-full bg-indigo-500 group-hover/btn:scale-150 transition-transform"></div>
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
 
       {/* Quick Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="card-premium p-6 bg-indigo-50/30 border-indigo-100/50">
+        <div className="card-premium p-6 bg-indigo-50/30 border-indigo-100/50 hover:bg-indigo-50/50 transition-colors cursor-default">
           <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Top City</p>
           <p className="text-xl font-black text-slate-900 mt-1">{cityDistribution[0]?.name || 'N/A'}</p>
           <p className="text-xs font-bold text-indigo-600/70 mt-0.5">{cityDistribution[0]?.users || 0} active users</p>
         </div>
-        <div className="card-premium p-6 bg-emerald-50/30 border-emerald-100/50">
+        <div className="card-premium p-6 bg-emerald-50/30 border-emerald-100/50 hover:bg-emerald-50/50 transition-colors cursor-default">
           <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Popular Service</p>
           <p className="text-xl font-black text-slate-900 mt-1">{categoryDistribution[0]?.name || 'N/A'}</p>
           <p className="text-xs font-bold text-emerald-600/70 mt-0.5">{categoryDistribution[0]?.providers || 0} providers</p>
         </div>
-        <div className="card-premium p-6 bg-purple-50/30 border-purple-100/50">
+        <div className="card-premium p-6 bg-purple-50/30 border-purple-100/50 hover:bg-purple-50/50 transition-colors cursor-default">
           <p className="text-[10px] font-black text-purple-400 uppercase tracking-widest">Verification Rate</p>
           <p className="text-xl font-black text-slate-900 mt-1">{verificationPercentage}%</p>
           <p className="text-xs font-bold text-purple-600/70 mt-0.5">{stats.acceptedProviders} verified</p>
         </div>
-        <div className="card-premium p-6 bg-amber-50/30 border-amber-100/50">
+        <div className="card-premium p-6 bg-amber-50/30 border-amber-100/50 hover:bg-amber-50/50 transition-colors cursor-default">
           <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Daily Signups</p>
           <p className="text-xl font-black text-slate-900 mt-1">
             {registrationTrend.length > 0 ? Math.round(registrationTrend.reduce((sum, day) => sum + day.total, 0) / 7) : 0}

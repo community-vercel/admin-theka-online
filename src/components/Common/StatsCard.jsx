@@ -106,7 +106,7 @@ const StatsCard = ({
   return (
     <div
       className={`
-        card-premium card-hover p-5 sm:p-6 
+        card-premium card-hover p-4 sm:p-6 
         flex flex-col h-full
         ${onClick ? 'cursor-pointer' : ''}
       `}
@@ -121,7 +121,7 @@ const StatsCard = ({
       }}
     >
       {/* Top Section - Icon & Trend */}
-      <div className={`flex items-start justify-between ${compact ? 'mb-4' : 'mb-6'}`}>
+      <div className={`flex items-start justify-between ${compact ? 'mb-3' : 'mb-4 sm:mb-6'}`}>
         {/* Icon Container */}
         <div className={`
           ${selectedColor.iconBg} ${selectedColor.text} rounded-xl
@@ -164,9 +164,9 @@ const StatsCard = ({
         </p>
 
         {/* Value */}
-        <div className="flex items-baseline gap-2">
+        <div className="flex items-baseline gap-2 overflow-hidden">
           <p className={`
-            font-extrabold text-slate-900 dark:text-white mb-0 break-words tracking-tight
+            font-extrabold text-slate-900 dark:text-white mb-0 break-all sm:break-words tracking-tight
             ${getValueFontSize()}
           `}>
             {value}

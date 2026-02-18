@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
+import BottomNav from './BottomNav';
 
 const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -48,7 +49,7 @@ const Layout = () => {
             onClick={() => setIsSidebarOpen(false)}
             aria-hidden="true"
           />
-          <div className="fixed inset-y-0 left-0 z-50">
+          <div className="fixed inset-y-0 right-0 z-50 animate-in slide-in-from-right duration-300">
             <Sidebar isMobile={true} onItemClick={() => setIsSidebarOpen(false)} />
           </div>
         </>
@@ -56,8 +57,9 @@ const Layout = () => {
 
       {/* Main Content Area */}
       <div className={`
-        flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out
+        flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out w-full overflow-x-hidden
         ${!isMobile ? (isCollapsed ? 'ml-20' : 'ml-64') : 'ml-0'}
+        ${isMobile ? 'pb-28' : ''}
       `}>
         {/* Navbar */}
         <Navbar
@@ -66,12 +68,12 @@ const Layout = () => {
         />
 
         {/* Page Content with Premium Breathability */}
-        <main className="flex-1 p-6 sm:p-10 lg:p-12 max-w-[1600px] mx-auto w-full">
+        <main className="flex-1 p-4 sm:p-10 lg:p-12 max-w-[1600px] mx-auto w-full">
           <Outlet />
         </main>
 
         {/* Global Footer - Professional SaaS Style */}
-        <footer className="px-10 py-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-bold uppercase tracking-widest text-slate-400">
+        <footer className="px-10 py-8 border-t border-slate-100 hidden sm:flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-bold uppercase tracking-widest text-slate-400">
           <div className="flex items-center gap-6">
             <p>© 2026 THEKA ONLINE ADMIN</p>
             <div className="hidden md:flex items-center gap-2 text-emerald-500">
@@ -87,6 +89,11 @@ const Layout = () => {
           </div>
         </footer>
       </div>
+
+      {/* Bottom Navigation for Mobile */}
+      {isMobile && (
+        <BottomNav onMoreClick={() => setIsSidebarOpen(true)} />
+      )}
     </div>
   );
 };

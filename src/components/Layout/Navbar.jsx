@@ -11,7 +11,8 @@ import {
   HiOutlineCog,
   HiOutlineUser,
   HiOutlineSun,
-  HiOutlineMoon
+  HiOutlineMoon,
+  HiDotsVertical
 } from 'react-icons/hi';
 
 const Navbar = ({ onMenuClick, isMobile, user = null }) => {
@@ -73,8 +74,8 @@ const Navbar = ({ onMenuClick, isMobile, user = null }) => {
 
   return (
     <nav className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 bg-white/80 backdrop-blur-md px-6 border-b border-slate-100">
-      {/* Mobile Menu Button - Styled */}
-      {isMobile && (
+      {/* Mobile Menu Button - Hidden to favor Bottom Nav */}
+      {isMobile && false && (
         <button
           onClick={onMenuClick}
           className="p-2.5 rounded-xl bg-slate-100/50 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200"
@@ -83,14 +84,12 @@ const Navbar = ({ onMenuClick, isMobile, user = null }) => {
         </button>
       )}
 
-      {/* Brand/Logo - Mobile only title if needed, or desktop title */}
-      {!isMobile && (
-        <div className="flex-shrink-0">
-          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-            Dashboard
-          </h1>
-        </div>
-      )}
+      {/* Brand/Logo - Show on all screens for context */}
+      <div className="flex-shrink-0">
+        <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">
+          Dashboard
+        </h1>
+      </div>
 
       {/* Search Bar - Modern & Responsive */}
       <div className={`
@@ -133,37 +132,39 @@ const Navbar = ({ onMenuClick, isMobile, user = null }) => {
           </button>
         )}
 
-        {/* Notifications */}
-        <div className="relative" ref={notificationsRef}>
-          <button
-            onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-            className="p-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-indigo-600 transition-all duration-200 relative group"
-          >
-            <HiBell className="h-6 w-6" />
-            {unreadNotifications > 0 && (
-              <span className="absolute top-2.5 right-2.5 h-2 w-2 bg-indigo-500 ring-2 ring-white rounded-full"></span>
-            )}
-          </button>
+        {/* Notifications - Hidden on Mobile (moved to More menu) */}
+        {!isMobile && (
+          <div className="relative" ref={notificationsRef}>
+            <button
+              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+              className="p-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-indigo-600 transition-all duration-200 relative group"
+            >
+              <HiBell className="h-6 w-6" />
+              {unreadNotifications > 0 && (
+                <span className="absolute top-2.5 right-2.5 h-2 w-2 bg-indigo-500 ring-2 ring-white rounded-full"></span>
+              )}
+            </button>
 
-          {isNotificationsOpen && (
-            <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
-              <div className="p-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-                <span className="font-bold text-slate-900 text-sm">Recent Notifications</span>
-                {unreadNotifications > 0 && (
-                  <button onClick={markAllAsRead} className="text-[10px] uppercase font-black text-indigo-500 hover:text-indigo-600 tracking-widest">Mark All Read</button>
-                )}
+            {isNotificationsOpen && (
+              <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
+                <div className="p-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+                  <span className="font-bold text-slate-900 text-sm">Recent Notifications</span>
+                  {unreadNotifications > 0 && (
+                    <button onClick={markAllAsRead} className="text-[10px] uppercase font-black text-indigo-500 hover:text-indigo-600 tracking-widest">Mark All Read</button>
+                  )}
+                </div>
+                <div className="max-h-80 overflow-y-auto">
+                  {notifications.map(n => (
+                    <div key={n.id} className={`p-4 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 ${!n.read ? 'bg-indigo-50/30' : ''}`}>
+                      <p className="text-sm text-slate-700 font-semibold">{n.title}</p>
+                      <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-bold">{n.time}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="max-h-80 overflow-y-auto">
-                {notifications.map(n => (
-                  <div key={n.id} className={`p-4 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 ${!n.read ? 'bg-indigo-50/30' : ''}`}>
-                    <p className="text-sm text-slate-700 font-semibold">{n.title}</p>
-                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-bold">{n.time}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* User Profile */}
         <div className="relative h-10 w-px bg-slate-100 mx-1 hidden sm:block"></div>
@@ -178,26 +179,39 @@ const Navbar = ({ onMenuClick, isMobile, user = null }) => {
               <p className="text-[10px] text-indigo-500 mt-1 uppercase tracking-widest font-black leading-none">{userData.role}</p>
             </div>
 
-            <div className="h-10 w-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center font-bold text-indigo-600 shadow-sm group-hover:scale-105 transition-transform duration-200">
+            <div className="h-9 w-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center font-extrabold text-indigo-600 shadow-sm group-hover:scale-105 transition-transform duration-200">
               {userData.initials}
+            </div>
+            <div className="p-1 rounded-lg bg-slate-50 border border-slate-100 sm:hidden">
+              <HiDotsVertical className={`h-4 w-4 text-slate-500 transition-transform ${isUserMenuOpen ? 'rotate-90' : ''}`} />
             </div>
             <HiChevronDown className={`h-4 w-4 text-slate-400 group-hover:text-slate-600 transition-transform hidden sm:block ${isUserMenuOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {isUserMenuOpen && (
-            <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
-              <div className="p-5 bg-slate-50">
-                <p className="font-bold text-slate-900 text-sm">{userData.name}</p>
-                <p className="text-xs text-slate-400 mt-0.5">{userData.email}</p>
+            <div className="absolute right-0 mt-3 w-64 bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-100 z-50 overflow-hidden animate-in slide-in-from-top-2 duration-300">
+              <div className="p-5 bg-slate-50/50">
+                <p className="font-extrabold text-slate-900 text-sm tracking-tight">{userData.name}</p>
+                <p className="text-[10px] text-slate-400 mt-0.5 font-bold uppercase tracking-wider">{userData.email}</p>
               </div>
-              <div className="p-2">
-                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-all font-bold text-[13px]">
-                  <HiOutlineUser className="h-5 w-5" />
+              <div className="p-3 space-y-1">
+                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-all font-bold text-[13px]">
+                  <div className="p-2 rounded-xl bg-slate-100 text-slate-500 group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors">
+                    <HiOutlineUser className="h-5 w-5" />
+                  </div>
                   <span>Account Settings</span>
                 </button>
-                <div className="h-px bg-slate-100 my-1"></div>
-                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-500 hover:bg-rose-50 transition-all font-bold text-[13px]">
-                  <HiOutlineLogout className="h-5 w-5" />
+                <button className="w-full sm:hidden flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-all font-bold text-[13px]">
+                  <div className="p-2 rounded-xl bg-slate-100 text-slate-500">
+                    <HiBell className="h-5 w-5" />
+                  </div>
+                  <span>Notifications</span>
+                </button>
+                <div className="h-px bg-slate-100 my-2 mx-4"></div>
+                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-rose-500 hover:bg-rose-50 transition-all font-bold text-[13px]">
+                  <div className="p-2 rounded-xl bg-rose-50 text-rose-500">
+                    <HiOutlineLogout className="h-5 w-5" />
+                  </div>
                   <span>Sign Out</span>
                 </button>
               </div>

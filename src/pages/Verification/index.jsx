@@ -372,8 +372,8 @@ const Verification = () => {
       accessor: 'serviceCategory',
       Cell: ({ value, row }) => (
         <div>
-          <p className="font-medium text-gray-900">{value}</p>
-          <p className="text-sm text-gray-600">{row.original.serviceType}</p>
+          <p className="font-medium text-gray-900">{value || 'No Category'}</p>
+          <p className="text-sm text-gray-600">{row.original.serviceType || 'Specialization'}</p>
         </div>
       )
     },
@@ -577,7 +577,7 @@ const Verification = () => {
       </div>
 
       {/* Performance Summary Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <StatsCard compact title="Repository" value={stats.total} icon={<HiUser />} color="blue" />
         <StatsCard compact title="Action Required" value={stats.pending} icon={<HiClock />} color="amber" pulse={stats.pending > 0} />
         <StatsCard compact title="Verified" value={stats.accepted} icon={<HiCheckCircle />} color="emerald" />
@@ -599,7 +599,7 @@ const Verification = () => {
           <p className="text-slate-400 mt-2 font-semibold">All verification requests have been successfully finalized.</p>
         </div>
       ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
           {filteredRequests.map((request) => (
             <div key={request.id} className="card-premium card-hover p-6 group">
               <div className="flex items-start justify-between gap-4 mb-6">
@@ -611,7 +611,9 @@ const Verification = () => {
                   </div>
                   <div className="min-w-0">
                     <h3 className="font-bold text-slate-900 truncate text-lg tracking-tight">{request.name}</h3>
-                    <p className="text-[11px] text-slate-400 mt-0.5 truncate uppercase font-black tracking-tight">{request.serviceCategory}</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5 truncate uppercase font-black tracking-tight">
+                      {request.serviceCategory || 'No Category'} • {request.serviceType || 'Specialization'}
+                    </p>
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2">

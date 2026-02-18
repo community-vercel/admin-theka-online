@@ -32,7 +32,8 @@ const AdModal = ({ ad, onClose, onSave }) => {
     bgColor: '#3B82F6',
     textColor: '#FFFFFF',
     isActive: true,
-    position: 'mobile'
+    position: 'mobile',
+    companyLogo: ''
   });
   const [loading, setLoading] = useState(false);
   const [customBgColor, setCustomBgColor] = useState('');
@@ -47,7 +48,8 @@ const AdModal = ({ ad, onClose, onSave }) => {
         bgColor: ad.bgColor || '#3B82F6',
         textColor: ad.textColor || '#FFFFFF',
         isActive: ad.isActive !== false,
-        position: ad.position || 'mobile'
+        position: ad.position || 'mobile',
+        companyLogo: ad.companyLogo || ''
       });
     }
   }, [ad]);
@@ -76,17 +78,17 @@ const AdModal = ({ ad, onClose, onSave }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.title.trim()) {
       alert('Please enter ad title');
       return;
     }
-    
+
     if (!formData.description.trim()) {
       alert('Please enter ad description');
       return;
     }
-    
+
     try {
       setLoading(true);
       await onSave(formData);
@@ -122,24 +124,31 @@ const AdModal = ({ ad, onClose, onSave }) => {
                 <span>Ad Preview (300×50 pixels)</span>
               </h3>
               <div className="flex items-center justify-center">
-                <div 
-                  className="w-300 h-50 rounded-lg shadow-md flex flex-col items-center justify-center overflow-hidden p-2"
-                  style={{ 
+                <div
+                  className="w-300 h-50 rounded-lg shadow-md flex items-center overflow-hidden p-2"
+                  style={{
                     backgroundColor: formData.bgColor,
                     color: formData.textColor
                   }}
                 >
-                  <div className="text-xs font-bold truncate max-w-full text-center">
-                    {formData.title || 'Ad Title'}
-                  </div>
-                  <div className="text-[10px] text-center truncate max-w-full mt-1">
-                    {formData.description || 'Ad description will appear here'}
-                  </div>
-                  {formData.details && (
-                    <div className="text-[8px] text-center opacity-90 mt-1">
-                      {formData.details}
+                  {formData.companyLogo && (
+                    <div className="h-10 w-10 shrink-0 bg-white/20 rounded-md overflow-hidden mr-3">
+                      <img src={formData.companyLogo} alt="Logo" className="h-full w-full object-contain" />
                     </div>
                   )}
+                  <div className="flex flex-col min-w-0">
+                    <div className="text-xs font-bold truncate max-w-full">
+                      {formData.title || 'Ad Title'}
+                    </div>
+                    <div className="text-[10px] truncate max-w-full mt-0.5 opacity-90">
+                      {formData.description || 'Ad description will appear here'}
+                    </div>
+                    {formData.details && (
+                      <div className="text-[8px] opacity-70 mt-0.5 truncate">
+                        {formData.details}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
               <p className="text-xs text-gray-500 mt-2 text-center">
@@ -227,6 +236,33 @@ const AdModal = ({ ad, onClose, onSave }) => {
                 </p>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Company Logo URL
+                </label>
+                <div className="flex items-center space-x-2">
+                  <div className="h-10 w-10 rounded bg-gray-100 flex items-center justify-center text-gray-400 overflow-hidden shrink-0">
+                    {formData.companyLogo ? (
+                      <img src={formData.companyLogo} alt="Preview" className="h-full w-full object-contain" />
+                    ) : (
+                      <HiX className="h-5 w-5 opacity-20" />
+                    )}
+                  </div>
+                  <input
+                    type="url"
+                    name="companyLogo"
+                    value={formData.companyLogo}
+                    onChange={handleChange}
+                    className="input-field w-full"
+                    placeholder="https://example.com/logo.png"
+                    disabled={loading}
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Square or horizontal logo looks best. Leave empty to hide.
+                </p>
+              </div>
+
               {/* Color Selection */}
               <div className="space-y-4">
                 <div>
@@ -239,17 +275,16 @@ const AdModal = ({ ad, onClose, onSave }) => {
                         key={color.value}
                         type="button"
                         onClick={() => handleColorSelect(color.value, 'bgColor')}
-                        className={`w-8 h-8 rounded-full border-2 ${
-                          formData.bgColor === color.value 
-                            ? 'border-blue-500 ring-2 ring-blue-200' 
+                        className={`w-8 h-8 rounded-full border-2 ${formData.bgColor === color.value
+                            ? 'border-blue-500 ring-2 ring-blue-200'
                             : 'border-gray-300'
-                        }`}
+                          }`}
                         style={{ backgroundColor: color.value }}
                         title={color.name}
                       />
                     ))}
                   </div>
-                  
+
                   <div className="flex items-center space-x-3">
                     <input
                       type="color"
@@ -294,11 +329,10 @@ const AdModal = ({ ad, onClose, onSave }) => {
                         key={color.value}
                         type="button"
                         onClick={() => handleColorSelect(color.value, 'textColor')}
-                        className={`w-8 h-8 rounded-full border-2 ${
-                          formData.textColor === color.value 
-                            ? 'border-blue-500 ring-2 ring-blue-200' 
+                        className={`w-8 h-8 rounded-full border-2 ${formData.textColor === color.value
+                            ? 'border-blue-500 ring-2 ring-blue-200'
                             : 'border-gray-300'
-                        } flex items-center justify-center`}
+                          } flex items-center justify-center`}
                         style={{ backgroundColor: color.value }}
                         title={color.name}
                       >

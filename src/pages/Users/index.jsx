@@ -342,8 +342,11 @@ const Users = () => {
                         </div>
                       </td>
                       <td className="hidden md:table-cell px-6 py-5">
-                        <p className="text-sm font-semibold text-slate-700">{user.phone}</p>
-                        <p className="text-xs text-slate-400 mt-1">{user.city}</p>
+                        <div className="flex flex-col gap-1 min-w-0">
+                          <p className="text-sm font-bold text-slate-700">{user.phone}</p>
+                          <p className="text-[11px] text-slate-400 truncate max-w-[180px]">{user.email}</p>
+                          <p className="text-[10px] text-slate-300 font-medium uppercase tracking-tighter">{user.city}</p>
+                        </div>
                       </td>
                       <td className="px-6 py-5">
                         <div className="flex flex-col gap-2">

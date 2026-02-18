@@ -1,9 +1,9 @@
 // src/services/adsService.js
 import { db } from './firebase';
-import { 
-  collection, 
-  getDocs, 
-  doc, 
+import {
+  collection,
+  getDocs,
+  doc,
   updateDoc,
   setDoc,
   deleteDoc,
@@ -20,9 +20,9 @@ export const adsService = {
         collection(db, "Ads"),
         orderBy("createdAt", "desc")
       ));
-      
+
       const ads = [];
-      
+
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         ads.push({
@@ -35,7 +35,8 @@ export const adsService = {
           textColor: data.textColor || '#FFFFFF', // Default white
           isActive: data.isActive !== false,
           position: data.position || 'mobile',
-          width: data.width || 300, // Fixed width 300px
+          companyLogo: data.companyLogo || '',
+          width: data.width || 300,
           height: data.height || 50, // Fixed height 50px
           clicks: data.clicks || 0,
           impressions: data.impressions || 0,
@@ -43,7 +44,7 @@ export const adsService = {
           updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : new Date(data.updatedAt),
         });
       });
-      
+
       return ads;
     } catch (error) {
       console.error("Error fetching ads:", error);
@@ -63,14 +64,15 @@ export const adsService = {
         textColor: adData.textColor,
         isActive: adData.isActive !== false,
         position: adData.position || 'mobile',
-        width: 300, // Fixed width for mobile ads
+        companyLogo: adData.companyLogo || '',
+        width: 300,
         height: 50, // Fixed height for mobile ads
         clicks: 0,
         impressions: 0,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
-      
+
       return { id: adRef.id, success: true };
     } catch (error) {
       console.error("Error creating ad:", error);
@@ -91,9 +93,10 @@ export const adsService = {
         textColor: adData.textColor,
         isActive: adData.isActive,
         position: adData.position,
+        companyLogo: adData.companyLogo || '',
         updatedAt: new Date().toISOString(),
       };
-      
+
       await updateDoc(adRef, updateData);
       return { success: true };
     } catch (error) {
@@ -119,7 +122,7 @@ export const adsService = {
     try {
       const adRef = doc(db, "Ads", adId);
       const ad = await getDoc(adRef);
-      
+
       if (ad.exists()) {
         const currentClicks = ad.data().clicks || 0;
         await updateDoc(adRef, {
@@ -137,7 +140,7 @@ export const adsService = {
     try {
       const adRef = doc(db, "Ads", adId);
       const ad = await getDoc(adRef);
-      
+
       if (ad.exists()) {
         const currentImpressions = ad.data().impressions || 0;
         await updateDoc(adRef, {
@@ -154,7 +157,7 @@ export const adsService = {
   async getAdStats() {
     try {
       const ads = await this.getAds();
-      
+
       const stats = {
         total: ads.length,
         active: ads.filter(ad => ad.isActive).length,
@@ -163,12 +166,12 @@ export const adsService = {
         totalImpressions: ads.reduce((sum, ad) => sum + (ad.impressions || 0), 0),
         ctr: 0,
       };
-      
+
       // Calculate CTR
       if (stats.totalImpressions > 0) {
         stats.ctr = ((stats.totalClicks / stats.totalImpressions) * 100).toFixed(2);
       }
-      
+
       return stats;
     } catch (error) {
       console.error("Error getting ad stats:", error);
