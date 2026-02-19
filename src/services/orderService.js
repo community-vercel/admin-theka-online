@@ -3,6 +3,8 @@ import { db } from './firebase';
 import {
     collection,
     getDocs,
+    getDoc,
+    doc,
     query,
     where,
     orderBy
@@ -74,6 +76,59 @@ export const orderService = {
         } catch (error) {
             console.error("Error fetching all orders:", error);
             return [];
+        }
+    },
+
+    /**
+     * Get all mutual acceptance logs from completed requests
+     */
+    async getAcceptanceLogs() {
+        try {
+            const q = query(
+                collection(db, "completedRequests"),
+                orderBy("acceptedAt", "desc")
+            );
+            const querySnapshot = await getDocs(q);
+            const logs = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.acceptedAt) {
+                    logs.push({
+                        id: doc.id,
+                        ...data,
+                        acceptedAt: data.acceptedAt?.toDate ? data.acceptedAt.toDate() : data.acceptedAt,
+                        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt
+                    });
+                }
+            });
+            return logs;
+        } catch (error) {
+            console.error("Error fetching acceptance logs:", error);
+            return [];
+        }
+    },
+
+    /**
+     * Get single acceptance log by ID
+     */
+    async getAcceptanceLogById(id) {
+        try {
+            const docRef = doc(db, "completedRequests", id);
+            const snapshot = await getDoc(docRef);
+            if (snapshot.exists()) {
+                const data = snapshot.data();
+                return {
+                    id: snapshot.id,
+                    ...data,
+                    acceptedAt: data.acceptedAt?.toDate ? data.acceptedAt.toDate() : data.acceptedAt,
+                    createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+                    completedAt: data.completedAt?.toDate ? data.completedAt.toDate() : data.completedAt
+                };
+            }
+            return null;
+        } catch (error) {
+            console.error("Error fetching acceptance log:", error);
+            throw error;
         }
     }
 };

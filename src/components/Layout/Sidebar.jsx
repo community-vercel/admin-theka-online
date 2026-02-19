@@ -12,6 +12,7 @@ import {
   HiPhotograph,
   HiChartBar,
   HiDocumentReport,
+  HiClipboardList,
   HiCollection,
   HiCash,
   HiShoppingCart,
@@ -34,6 +35,7 @@ const Sidebar = ({ isMobile, onItemClick, isCollapsed = false, onToggleCollapse 
     { path: '/verification', icon: <HiCheckCircle />, label: 'Verification', badge: '' },
     { path: '/reviews', icon: <HiCheckCircle />, label: 'Reviews' },
     { path: '/ads', icon: <HiPhotograph />, label: 'Ads Management' },
+    { path: '/acceptance-logs', icon: <HiClipboardList />, label: 'Acceptance Logs' },
     { path: '/settings', icon: <HiCog />, label: 'Settings' },
     { path: '/db/health', icon: <HiDatabase />, label: 'DB Health' },
   ];

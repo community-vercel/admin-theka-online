@@ -10,6 +10,8 @@ import Verification from './pages/Verification';
 import VerificationDetails from './pages/Verification/VerificationDetails';
 import Reviews from './pages/Reviews';
 import ReviewDetails from './pages/Reviews/ReviewDetails';
+import AcceptanceLogs from './pages/AcceptanceLogs';
+import LogDetails from './pages/AcceptanceLogs/LogDetails';
 import Settings from './pages/Settings/index';
 import Layout from './components/Layout/Layout';
 import Ads from './pages/Ads';
@@ -56,6 +58,8 @@ function App() {
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/reviews/:id" element={<ReviewDetails />} />
           <Route path="/ads" element={<Ads />} />
+          <Route path="/acceptance-logs" element={<AcceptanceLogs />} />
+          <Route path="/acceptance-logs/:id" element={<LogDetails />} />
 
           <Route path="settings" element={<Settings />} />
           <Route path="/db/health" element={<DBHealth />} />

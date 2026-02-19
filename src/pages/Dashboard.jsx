@@ -1,6 +1,6 @@
 // src/pages/Dashboard.jsx
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { dashboardService } from '../services/dashboardService';
 import StatsCard from '../components/Common/StatsCard';
 import {
@@ -10,7 +10,8 @@ import {
   HiUserGroup,
   HiBriefcase,
   HiCalendar,
-  HiStar
+  HiStar,
+  HiMap
 } from 'react-icons/hi';
 import {
   LineChart,
@@ -49,6 +50,7 @@ const Dashboard = () => {
   const [providerReviews, setProviderReviews] = useState([]);
   const [activeReviewTab, setActiveReviewTab] = useState('customer');
   const [averageRating, setAverageRating] = useState(0);
+  const [recentAcceptances, setRecentAcceptances] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -67,7 +69,8 @@ const Dashboard = () => {
         verification,
         recent,
         trend,
-        reviewData
+        reviewData,
+        acceptances
       ] = await Promise.all([
         dashboardService.getTotalCounts(),
         dashboardService.getCityDistribution(),
@@ -75,7 +78,8 @@ const Dashboard = () => {
         dashboardService.getVerificationDistribution(),
         dashboardService.getRecentRegistrations(),
         dashboardService.getRegistrationTrend(),
-        dashboardService.getRecentReviews()
+        dashboardService.getRecentReviews(),
+        dashboardService.getRecentAcceptances()
       ]);
 
       setStats({
@@ -95,6 +99,7 @@ const Dashboard = () => {
       setCustomerReviews(reviewData.customerReviews);
       setProviderReviews(reviewData.providerReviews);
       setAverageRating(reviewData.averageRating);
+      setRecentAcceptances(acceptances);
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -393,6 +398,99 @@ const Dashboard = () => {
               </PieChart>
             </ResponsiveContainer>
           </div>
+        </div>
+      </div>
+
+      {/* City Distribution Section */}
+      <div className="card-premium p-6 sm:p-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h3 className="text-lg font-bold text-slate-900">City Distribution</h3>
+            <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">User base by location</p>
+          </div>
+          <div className="h-10 w-10 bg-indigo-50 rounded-xl flex items-center justify-center">
+            <HiMap className="h-6 w-6 text-indigo-500" />
+          </div>
+        </div>
+        <div className="h-[400px] w-full mt-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              layout="vertical"
+              data={cityDistribution}
+              margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
+              <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
+              <YAxis
+                dataKey="name"
+                type="category"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: '#6366f1', fontSize: 12, fontWeight: 600 }}
+                width={120}
+              />
+              <Tooltip
+                cursor={{ fill: '#f8fafc' }}
+                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+              />
+              <Bar dataKey="users" name="Total Users" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={20} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Mutual Acceptance Activity Section */}
+      <div className="card-premium p-6 sm:p-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h3 className="text-lg font-bold text-slate-900">Mutual Acceptance Activity</h3>
+            <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">Latest provider-customer matches</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link to="/acceptance-logs" className="text-xs font-bold text-indigo-600 hover:text-indigo-700 uppercase tracking-widest hover:underline">
+              View All Logs
+            </Link>
+            <div className="h-10 w-10 bg-indigo-50 rounded-xl flex items-center justify-center">
+              <HiCheckCircle className="h-6 w-6 text-indigo-500" />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {recentAcceptances.length === 0 ? (
+            <div className="text-center py-12 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+              <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">No recent matches found</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {recentAcceptances.map((log) => (
+                <div key={log.id} className="p-4 bg-white border border-slate-100 rounded-2xl hover:shadow-lg transition-all flex items-center justify-between group">
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-xs border border-indigo-100">
+                      {log.service.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-black text-slate-900">{log.userName}</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Matched with</span>
+                        <span className="text-sm font-black text-indigo-600">{log.providerName}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs font-bold text-slate-500">{log.service}</span>
+                        <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                          {formatDate(log.acceptedAt)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-emerald-100">
+                    MATCHED
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

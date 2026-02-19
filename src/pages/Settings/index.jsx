@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { settingsService } from '../../services/settingsService';
-import { 
+import {
   HiCog,
   HiBriefcase,
   HiHome,
@@ -29,14 +29,14 @@ const Settings = () => {
     skilled: [],
     unskilled: []
   });
-  
+
   // Cities state
   const [newCity, setNewCity] = useState('');
   const [searchCity, setSearchCity] = useState('');
   const [cityCurrentPage, setCityCurrentPage] = useState(1);
   const [citiesPerPage] = useState(10);
   const [citySortOrder, setCitySortOrder] = useState('asc'); // 'asc' or 'desc'
-  
+
   // Service Categories state
   const [newCategory, setNewCategory] = useState({
     name: '',
@@ -58,9 +58,9 @@ const Settings = () => {
         settingsService.getCities(),
         settingsService.getServiceCategories()
       ]);
-      
+
       console.log('Fetched categories:', categoriesData); // Debug log
-      
+
       setCities(citiesData);
       setCategories(categoriesData);
     } catch (error) {
@@ -206,31 +206,29 @@ const Settings = () => {
         <nav className="flex space-x-8">
           <button
             onClick={() => setActiveTab('cities')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-colors ${
-              activeTab === 'cities'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
+            className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-colors ${activeTab === 'cities'
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
           >
             <span>Cities</span>
             <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
               {cities.length}
             </span>
           </button>
-          
+
           <button
             onClick={() => setActiveTab('services')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-colors ${
-              activeTab === 'services'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
+            className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-colors ${activeTab === 'services'
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
           >
-            {/* <HiBriefcase className="h-5 w-5" />
+            <HiBriefcase className="h-5 w-5" />
             <span>Service Categories</span>
             <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
               {categories.skilled.length + categories.unskilled.length}
-            </span> */}
+            </span>
           </button>
         </nav>
       </div>
@@ -298,13 +296,13 @@ const Settings = () => {
 };
 
 // Cities Tab Component
-const CitiesTab = ({ 
-  cities, 
-  newCity, 
-  setNewCity, 
-  searchCity, 
+const CitiesTab = ({
+  cities,
+  newCity,
+  setNewCity,
+  searchCity,
   setSearchCity,
-  onAddCity, 
+  onAddCity,
   onDeleteCity,
   totalCities,
   cityCurrentPage,
@@ -440,15 +438,14 @@ const CitiesTab = ({
                   <button
                     onClick={() => setCityCurrentPage(Math.max(1, cityCurrentPage - 1))}
                     disabled={cityCurrentPage === 1}
-                    className={`p-2 rounded-lg ${
-                      cityCurrentPage === 1
-                        ? 'text-gray-400 cursor-not-allowed'
-                        : 'text-gray-600 hover:bg-gray-100'
-                    }`}
+                    className={`p-2 rounded-lg ${cityCurrentPage === 1
+                      ? 'text-gray-400 cursor-not-allowed'
+                      : 'text-gray-600 hover:bg-gray-100'
+                      }`}
                   >
                     <HiChevronLeft className="h-5 w-5" />
                   </button>
-                  
+
                   <div className="flex items-center space-x-1">
                     {Array.from({ length: Math.min(5, totalCityPages) }, (_, i) => {
                       let pageNum;
@@ -461,31 +458,29 @@ const CitiesTab = ({
                       } else {
                         pageNum = cityCurrentPage - 2 + i;
                       }
-                      
+
                       return (
                         <button
                           key={pageNum}
                           onClick={() => setCityCurrentPage(pageNum)}
-                          className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium ${
-                            cityCurrentPage === pageNum
-                              ? 'bg-blue-600 text-white'
-                              : 'text-gray-600 hover:bg-gray-100'
-                          }`}
+                          className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium ${cityCurrentPage === pageNum
+                            ? 'bg-blue-600 text-white'
+                            : 'text-gray-600 hover:bg-gray-100'
+                            }`}
                         >
                           {pageNum}
                         </button>
                       );
                     })}
                   </div>
-                  
+
                   <button
                     onClick={() => setCityCurrentPage(Math.min(totalCityPages, cityCurrentPage + 1))}
                     disabled={cityCurrentPage === totalCityPages}
-                    className={`p-2 rounded-lg ${
-                      cityCurrentPage === totalCityPages
-                        ? 'text-gray-400 cursor-not-allowed'
-                        : 'text-gray-600 hover:bg-gray-100'
-                    }`}
+                    className={`p-2 rounded-lg ${cityCurrentPage === totalCityPages
+                      ? 'text-gray-400 cursor-not-allowed'
+                      : 'text-gray-600 hover:bg-gray-100'
+                      }`}
                   >
                     <HiChevronRight className="h-5 w-5" />
                   </button>
@@ -500,14 +495,14 @@ const CitiesTab = ({
 );
 
 // Services Tab Component
-const ServicesTab = ({ 
-  skilled, 
-  unskilled, 
-  newCategory, 
+const ServicesTab = ({
+  skilled,
+  unskilled,
+  newCategory,
   setNewCategory,
-  searchCategory, 
+  searchCategory,
   setSearchCategory,
-  onAddCategory, 
+  onAddCategory,
   onDeleteCategory,
   totalSkilled,
   totalUnskilled,
@@ -523,7 +518,7 @@ const ServicesTab = ({
 }) => {
   console.log('Skilled categories:', skilled); // Debug log
   console.log('Unskilled categories:', unskilled); // Debug log
-  
+
   return (
     <div className="space-y-6">
       {/* Add Category Form */}
@@ -614,15 +609,6 @@ const ServicesTab = ({
           </div>
         </div>
 
-        {/* Debug Info - Remove in production */}
-        <div className="p-4 bg-yellow-50 border-b border-yellow-100">
-          <div className="flex items-center space-x-2 text-yellow-800">
-            <HiExclamationCircle className="h-5 w-5" />
-            <p className="text-sm">
-              Debug: Skilled: {skilled.length}, Unskilled: {unskilled.length}, Total: {skilled.length + unskilled.length}
-            </p>
-          </div>
-        </div>
 
         {/* Skilled Categories */}
         <div className="p-6 border-b border-gray-200">
@@ -634,7 +620,7 @@ const ServicesTab = ({
               </span>
             </div>
           </div>
-          
+
           {skilled.length === 0 ? (
             <div className="text-center py-8 bg-gray-50 rounded-lg">
               <HiExclamationCircle className="h-8 w-8 text-gray-400 mx-auto mb-2" />
@@ -649,6 +635,7 @@ const ServicesTab = ({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <HiBriefcase className="h-4 w-4 text-purple-600" />
                       </div>
                       <span className="font-medium text-gray-900">{category}</span>
                     </div>
@@ -677,7 +664,7 @@ const ServicesTab = ({
               </span>
             </div>
           </div>
-          
+
           {unskilled.length === 0 ? (
             <div className="text-center py-8 bg-gray-50 rounded-lg">
               <HiExclamationCircle className="h-8 w-8 text-gray-400 mx-auto mb-2" />
@@ -725,15 +712,14 @@ const ServicesTab = ({
                 <button
                   onClick={() => setCategoryCurrentPage(Math.max(1, categoryCurrentPage - 1))}
                   disabled={categoryCurrentPage === 1}
-                  className={`p-2 rounded-lg ${
-                    categoryCurrentPage === 1
-                      ? 'text-gray-400 cursor-not-allowed'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
+                  className={`p-2 rounded-lg ${categoryCurrentPage === 1
+                    ? 'text-gray-400 cursor-not-allowed'
+                    : 'text-gray-600 hover:bg-gray-100'
+                    }`}
                 >
                   <HiChevronLeft className="h-5 w-5" />
                 </button>
-                
+
                 <div className="flex items-center space-x-1">
                   {Array.from({ length: Math.min(5, totalCategoryPages) }, (_, i) => {
                     let pageNum;
@@ -746,31 +732,29 @@ const ServicesTab = ({
                     } else {
                       pageNum = categoryCurrentPage - 2 + i;
                     }
-                    
+
                     return (
                       <button
                         key={pageNum}
                         onClick={() => setCategoryCurrentPage(pageNum)}
-                        className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium ${
-                          categoryCurrentPage === pageNum
-                            ? 'bg-blue-600 text-white'
-                            : 'text-gray-600 hover:bg-gray-100'
-                        }`}
+                        className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium ${categoryCurrentPage === pageNum
+                          ? 'bg-blue-600 text-white'
+                          : 'text-gray-600 hover:bg-gray-100'
+                          }`}
                       >
                         {pageNum}
                       </button>
                     );
                   })}
                 </div>
-                
+
                 <button
                   onClick={() => setCategoryCurrentPage(Math.min(totalCategoryPages, categoryCurrentPage + 1))}
                   disabled={categoryCurrentPage === totalCategoryPages}
-                  className={`p-2 rounded-lg ${
-                    categoryCurrentPage === totalCategoryPages
-                      ? 'text-gray-400 cursor-not-allowed'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
+                  className={`p-2 rounded-lg ${categoryCurrentPage === totalCategoryPages
+                    ? 'text-gray-400 cursor-not-allowed'
+                    : 'text-gray-600 hover:bg-gray-100'
+                    }`}
                 >
                   <HiChevronRight className="h-5 w-5" />
                 </button>
@@ -793,7 +777,7 @@ const ServicesTab = ({
             </div>
           </div>
         </div>
-        
+
         <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg p-6 text-white">
           <div className="flex items-center justify-between">
             <div>

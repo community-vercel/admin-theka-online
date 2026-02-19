@@ -7,7 +7,9 @@ import {
   doc,
   getCountFromServer,
   query,
-  where
+  where,
+  orderBy,
+  limit
 } from "firebase/firestore";
 
 export const dashboardService = {
@@ -352,6 +354,39 @@ export const dashboardService = {
     } catch (error) {
       console.error("Error getting recent reviews:", error);
       return { customerReviews: [], providerReviews: [], averageRating: 0, totalReviews: 0 };
+    }
+  },
+
+  // Get recent mutual acceptances
+  async getRecentAcceptances() {
+    try {
+      const completedSnapshot = await getDocs(
+        query(
+          collection(db, "completedRequests"),
+          orderBy("acceptedAt", "desc"),
+          limit(10)
+        )
+      );
+
+      const acceptances = [];
+      completedSnapshot.forEach(doc => {
+        const data = doc.data();
+        if (data.acceptedAt) {
+          acceptances.push({
+            id: doc.id,
+            userName: data.userName || "Customer",
+            providerName: data.providerName || "Provider",
+            service: data.service || "General Service",
+            acceptedAt: data.acceptedAt?.toDate ? data.acceptedAt.toDate() : data.acceptedAt,
+            status: data.status || "completed"
+          });
+        }
+      });
+
+      return acceptances;
+    } catch (error) {
+      console.error("Error getting recent acceptances:", error);
+      return [];
     }
   },
 
