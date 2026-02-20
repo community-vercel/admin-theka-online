@@ -75,8 +75,8 @@ const transport = nodemailer.createTransport({
     port: 465,
     secure: true,
     auth: {
-        user: 'anis.inbox10@gmail.com',
-        pass: 'ijyn mxwu tzgx ccfz'
+        user: 'mr.ikramsatti@gmail.com',
+        pass: 'fxoe chdc dlza fbee'
     }
 });
 
@@ -85,10 +85,10 @@ exports.onServiceProviderCreate = functions.firestore
     .document('ServiceProviders/{providerId}')
     .onCreate(async (snap, context) => {
         const newValue = snap.data();
-        const adminEmail = 'anis.inbox10@gmail.com';
+        const adminEmail = 'mr.ikramsatti@gmail.com';
 
         const mailOptions = {
-            from: `"Theeka Platform" <anis.inbox10@gmail.com>`,
+            from: `"Theeka Platform" <mr.ikramsatti@gmail.com>`,
             to: adminEmail,
             subject: 'New Service Provider Registration Awaiting Approval',
             html: `
