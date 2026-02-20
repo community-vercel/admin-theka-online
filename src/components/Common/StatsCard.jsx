@@ -65,10 +65,34 @@ const StatsCard = ({
       iconBg: 'bg-indigo-600/10'
     },
     gray: {
-      bg: 'bg-slate-50 dark:bg-slate-500/10',
-      text: 'text-slate-600 dark:text-slate-400',
-      border: 'border-slate-100 dark:border-slate-500/20',
+      bg: 'bg-slate-50',
+      text: 'text-slate-600',
+      border: 'border-slate-100',
       iconBg: 'bg-slate-600/10'
+    },
+    emerald: {
+      bg: 'bg-emerald-50',
+      text: 'text-emerald-600',
+      border: 'border-emerald-100',
+      iconBg: 'bg-emerald-600/10'
+    },
+    violet: {
+      bg: 'bg-violet-50',
+      text: 'text-violet-600',
+      border: 'border-violet-100',
+      iconBg: 'bg-violet-600/10'
+    },
+    amber: {
+      bg: 'bg-amber-50',
+      text: 'text-amber-600',
+      border: 'border-amber-100',
+      iconBg: 'bg-amber-600/10'
+    },
+    rose: {
+      bg: 'bg-rose-50',
+      text: 'text-rose-600',
+      border: 'border-rose-100',
+      iconBg: 'bg-rose-600/10'
     }
   };
 
@@ -138,8 +162,8 @@ const StatsCard = ({
           <div className={`
             flex items-center text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-full border tracking-wide uppercase
             ${trend === 'up'
-              ? 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400'
-              : 'bg-rose-50 text-rose-700 border-rose-100 dark:bg-rose-500/10 dark:text-rose-400'
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+              : 'bg-rose-50 text-rose-700 border-rose-100'
             }
           `}>
             {trend === 'up' ? (
@@ -156,7 +180,7 @@ const StatsCard = ({
       <div className="flex-1 flex flex-col">
         {/* Title */}
         <p className={`
-          text-slate-500 dark:text-slate-400 mb-1 font-medium
+          text-slate-500 mb-1 font-medium
           ${compact ? 'text-xs' : 'text-sm'}
           uppercase tracking-wider
         `}>
@@ -166,7 +190,7 @@ const StatsCard = ({
         {/* Value */}
         <div className="flex items-baseline gap-2 overflow-hidden">
           <p className={`
-            font-extrabold text-slate-900 dark:text-white mb-0 break-all sm:break-words tracking-tight
+            font-extrabold text-slate-900 mb-0 break-all sm:break-words tracking-tight
             ${getValueFontSize()}
           `}>
             {value}

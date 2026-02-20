@@ -19,7 +19,9 @@ import {
   HiChevronDown,
   HiChevronUp,
   HiFilter,
-  HiDownload
+  HiDownload,
+  HiChevronLeft,
+  HiChevronRight
 } from 'react-icons/hi';
 import { serviceProviderService } from '../../services/serviceProviderService';
 import DataTable from '../../components/Common/DataTable';
@@ -44,6 +46,15 @@ const Verification = () => {
     date: 'all',
     sortBy: 'newest'
   });
+
+  // Grid pagination state
+  const [gridCurrentPage, setGridCurrentPage] = useState(1);
+  const [gridItemsPerPage] = useState(9); // 3x3 grid
+
+  // Reset grid page when filters change
+  useEffect(() => {
+    setGridCurrentPage(1);
+  }, [filter, filters, requests.length]);
 
   // Fetch service providers from Firestore
   useEffect(() => {
@@ -334,10 +345,10 @@ const Verification = () => {
       Cell: ({ row }) => (
         <input
           type="checkbox"
-          checked={selectedRequests.includes(row.original.id)}
-          onChange={() => handleSelectRequest(row.original.id)}
+          checked={selectedRequests.includes(row.id)}
+          onChange={() => handleSelectRequest(row.id)}
           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          disabled={row.original.accountStatus !== 'pending'}
+          disabled={row.accountStatus !== 'pending'}
         />
       ),
       width: 80
@@ -352,7 +363,7 @@ const Verification = () => {
           </div>
           <div className="min-w-0">
             <p className="font-medium text-gray-900 truncate">{value}</p>
-            <p className="text-sm text-gray-600 truncate">{row.original.email}</p>
+            <p className="text-sm text-gray-600 truncate">{row.email}</p>
           </div>
         </div>
       )
@@ -363,7 +374,7 @@ const Verification = () => {
       Cell: ({ value, row }) => (
         <div>
           <p className="text-gray-900">{value}</p>
-          <p className="text-sm text-gray-600">{row.original.city}</p>
+          <p className="text-sm text-gray-600">{row.city}</p>
         </div>
       )
     },
@@ -373,7 +384,7 @@ const Verification = () => {
       Cell: ({ value, row }) => (
         <div>
           <p className="font-medium text-gray-900">{value || 'No Category'}</p>
-          <p className="text-sm text-gray-600">{row.original.serviceType || 'Specialization'}</p>
+          <p className="text-sm text-gray-600">{row.serviceType || 'Specialization'}</p>
         </div>
       )
     },
@@ -392,8 +403,8 @@ const Verification = () => {
       Cell: ({ value, row }) => (
         <div>
           <p className="text-gray-900">{value}</p>
-          {row.original.reviewedAt && (
-            <p className="text-xs text-gray-500">Reviewed: {new Date(row.original.reviewedAt).toLocaleDateString()}</p>
+          {row.reviewedAt && (
+            <p className="text-xs text-gray-500">Reviewed: {new Date(row.reviewedAt).toLocaleDateString()}</p>
           )}
         </div>
       )
@@ -404,24 +415,24 @@ const Verification = () => {
       Cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <Link
-            to={`/verification/${row.original.id}`}
-            state={{ provider: row.original }}
+            to={`/verification/${row.id}`}
+            state={{ provider: row }}
             className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
             title="View Details"
           >
             <HiEye className="h-4 w-4" />
           </Link>
-          {row.original.accountStatus === 'pending' && (
+          {row.accountStatus === 'pending' && (
             <>
               <button
-                onClick={() => handleApprove(row.original.id)}
+                onClick={() => handleApprove(row.id)}
                 className="p-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg"
                 title="Approve"
               >
                 <HiCheck className="h-4 w-4" />
               </button>
               <button
-                onClick={() => handleReject(row.original.id)}
+                onClick={() => handleReject(row.id)}
                 className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg"
                 title="Reject"
               >
@@ -599,84 +610,139 @@ const Verification = () => {
           <p className="text-slate-400 mt-2 font-semibold">All verification requests have been successfully finalized.</p>
         </div>
       ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-          {filteredRequests.map((request) => (
-            <div key={request.id} className="card-premium card-hover p-6 group">
-              <div className="flex items-start justify-between gap-4 mb-6">
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-0.5 shadow-lg shadow-indigo-100 shrink-0">
-                    <div className="h-full w-full rounded-[14px] bg-white flex items-center justify-center text-indigo-600 font-black text-xl">
-                      {request.name?.charAt(0)}
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+            {filteredRequests.slice((gridCurrentPage - 1) * gridItemsPerPage, gridCurrentPage * gridItemsPerPage).map((request) => (
+              <div key={request.id} className="card-premium card-hover p-6 group">
+                <div className="flex items-start justify-between gap-4 mb-6">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-0.5 shadow-lg shadow-indigo-100 shrink-0">
+                      <div className="h-full w-full rounded-[14px] bg-white flex items-center justify-center text-indigo-600 font-black text-xl">
+                        {request.name?.charAt(0)}
+                      </div>
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-bold text-slate-900 truncate text-lg tracking-tight">{request.name}</h3>
+                      <p className="text-[11px] text-slate-400 mt-0.5 truncate uppercase font-black tracking-tight">
+                        {request.serviceCategory || 'No Category'} • {request.serviceType || 'Specialization'}
+                      </p>
                     </div>
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="font-bold text-slate-900 truncate text-lg tracking-tight">{request.name}</h3>
-                    <p className="text-[11px] text-slate-400 mt-0.5 truncate uppercase font-black tracking-tight">
-                      {request.serviceCategory || 'No Category'} • {request.serviceType || 'Specialization'}
-                    </p>
+                  <div className="flex flex-col items-end gap-2">
+                    <span className={`status-badge ${getStatusColor(request.accountStatus)}`}>
+                      {request.accountStatus}
+                    </span>
+                    {request.accountStatus === 'pending' && (
+                      <input
+                        type="checkbox"
+                        checked={selectedRequests.includes(request.id)}
+                        onChange={() => handleSelectRequest(request.id)}
+                        className="h-5 w-5 rounded border-slate-200 text-indigo-600 focus:ring-indigo-500/20 cursor-pointer"
+                      />
+                    )}
                   </div>
                 </div>
-                <div className="flex flex-col items-end gap-2">
-                  <span className={`status-badge ${getStatusColor(request.accountStatus)}`}>
-                    {request.accountStatus}
-                  </span>
+
+                <div className="space-y-4 mb-6">
+                  <div className="flex items-center gap-3 text-sm font-semibold text-slate-700 bg-slate-50/80 p-3 rounded-xl border border-slate-100">
+                    <div className="h-8 w-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-400">
+                      <HiPhone className="h-4 w-4" />
+                    </div>
+                    <span>{request.phone}</span>
+                  </div>
+
+                  <div className="flex items-center gap-3 text-sm font-semibold text-slate-700 bg-slate-50/80 p-3 rounded-xl border border-slate-100">
+                    <div className="h-8 w-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-400">
+                      <HiLocationMarker className="h-4 w-4" />
+                    </div>
+                    <span>{request.city}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-6 border-t border-slate-50">
+                  <Link
+                    to={`/verification/${request.id}`}
+                    state={{ provider: request }}
+                    className="flex items-center gap-2 text-xs font-black uppercase text-slate-400 tracking-widest hover:text-indigo-600 transition-colors"
+                  >
+                    <HiEye className="h-4 w-4" />
+                    <span>Inspect</span>
+                  </Link>
+
                   {request.accountStatus === 'pending' && (
-                    <input
-                      type="checkbox"
-                      checked={selectedRequests.includes(request.id)}
-                      onChange={() => handleSelectRequest(request.id)}
-                      className="h-5 w-5 rounded border-slate-200 text-indigo-600 focus:ring-indigo-500/20 cursor-pointer"
-                    />
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleReject(request.id)}
+                        className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                      >
+                        <HiX className="h-6 w-6" />
+                      </button>
+                      <button
+                        onClick={() => handleApprove(request.id)}
+                        className="flex items-center gap-2 px-5 py-2 bg-emerald-500 text-white rounded-xl font-bold text-xs hover:bg-emerald-600 shadow-lg shadow-emerald-100 transition-all"
+                      >
+                        <HiCheck className="h-4 w-4" />
+                        <span>Approve</span>
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
+            ))}
+          </div>
 
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center gap-3 text-sm font-semibold text-slate-700 bg-slate-50/80 p-3 rounded-xl border border-slate-100">
-                  <div className="h-8 w-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-400">
-                    <HiPhone className="h-4 w-4" />
-                  </div>
-                  <span>{request.phone}</span>
-                </div>
+          {/* Grid Pagination Control */}
+          {filteredRequests.length > gridItemsPerPage && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 px-2 border-t border-slate-100">
+              <p className="text-sm font-semibold text-slate-500">
+                Showing <span className="text-slate-900">{(gridCurrentPage - 1) * gridItemsPerPage + 1}</span> to{' '}
+                <span className="text-slate-900">{Math.min(gridCurrentPage * gridItemsPerPage, filteredRequests.length)}</span> of{' '}
+                <span className="text-slate-900">{filteredRequests.length}</span> results
+              </p>
 
-                <div className="flex items-center gap-3 text-sm font-semibold text-slate-700 bg-slate-50/80 p-3 rounded-xl border border-slate-100">
-                  <div className="h-8 w-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-400">
-                    <HiLocationMarker className="h-4 w-4" />
-                  </div>
-                  <span>{request.city}</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-6 border-t border-slate-50">
-                <Link
-                  to={`/verification/${request.id}`}
-                  state={{ provider: request }}
-                  className="flex items-center gap-2 text-xs font-black uppercase text-slate-400 tracking-widest hover:text-indigo-600 transition-colors"
+              <div className="flex items-center gap-2">
+                <button
+                  disabled={gridCurrentPage === 1}
+                  onClick={() => setGridCurrentPage(prev => Math.max(prev - 1, 1))}
+                  className={`p-2 rounded-xl border border-slate-200 transition-all ${gridCurrentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50 text-indigo-600'}`}
                 >
-                  <HiEye className="h-4 w-4" />
-                  <span>Inspect</span>
-                </Link>
+                  <HiChevronLeft className="h-5 w-5" />
+                </button>
 
-                {request.accountStatus === 'pending' && (
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleReject(request.id)}
-                      className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
-                    >
-                      <HiX className="h-6 w-6" />
-                    </button>
-                    <button
-                      onClick={() => handleApprove(request.id)}
-                      className="flex items-center gap-2 px-5 py-2 bg-emerald-500 text-white rounded-xl font-bold text-xs hover:bg-emerald-600 shadow-lg shadow-emerald-100 transition-all"
-                    >
-                      <HiCheck className="h-4 w-4" />
-                      <span>Approve</span>
-                    </button>
-                  </div>
-                )}
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.ceil(filteredRequests.length / gridItemsPerPage) }, (_, i) => i + 1)
+                    .filter(page => {
+                      const totalPages = Math.ceil(filteredRequests.length / gridItemsPerPage);
+                      if (totalPages <= 5) return true;
+                      if (page === 1 || page === totalPages) return true;
+                      return Math.abs(page - gridCurrentPage) <= 1;
+                    })
+                    .map((page, index, array) => (
+                      <div key={page} className="flex items-center gap-1">
+                        {index > 0 && array[index - 1] !== page - 1 && (
+                          <span className="text-slate-400">...</span>
+                        )}
+                        <button
+                          onClick={() => setGridCurrentPage(page)}
+                          className={`w-10 h-10 rounded-xl font-bold text-sm transition-all ${gridCurrentPage === page ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'hover:bg-slate-50 text-slate-600 border border-transparent'}`}
+                        >
+                          {page}
+                        </button>
+                      </div>
+                    ))
+                  }
+                </div>
+
+                <button
+                  disabled={gridCurrentPage === Math.ceil(filteredRequests.length / gridItemsPerPage)}
+                  onClick={() => setGridCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredRequests.length / gridItemsPerPage)))}
+                  className={`p-2 rounded-xl border border-slate-200 transition-all ${gridCurrentPage === Math.ceil(filteredRequests.length / gridItemsPerPage) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50 text-indigo-600'}`}
+                >
+                  <HiChevronRight className="h-5 w-5" />
+                </button>
               </div>
             </div>
-          ))}
+          )}
         </div>
       ) : (
         <div className="card-premium overflow-hidden">

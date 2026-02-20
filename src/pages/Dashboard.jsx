@@ -46,6 +46,7 @@ const Dashboard = () => {
   const [verificationDistribution, setVerificationDistribution] = useState([]);
   const [recentRegistrations, setRecentRegistrations] = useState([]);
   const [registrationTrend, setRegistrationTrend] = useState([]);
+  const [registrationGrowthTrend, setRegistrationGrowthTrend] = useState([]);
   const [customerReviews, setCustomerReviews] = useState([]);
   const [providerReviews, setProviderReviews] = useState([]);
   const [activeReviewTab, setActiveReviewTab] = useState('customer');
@@ -69,6 +70,7 @@ const Dashboard = () => {
         verification,
         recent,
         trend,
+        growthTrend,
         reviewData,
         acceptances
       ] = await Promise.all([
@@ -78,6 +80,7 @@ const Dashboard = () => {
         dashboardService.getVerificationDistribution(),
         dashboardService.getRecentRegistrations(),
         dashboardService.getRegistrationTrend(),
+        dashboardService.getRegistrationTrend30Days(),
         dashboardService.getRecentReviews(),
         dashboardService.getRecentAcceptances()
       ]);
@@ -96,6 +99,7 @@ const Dashboard = () => {
       setVerificationDistribution(verification);
       setRecentRegistrations(recent);
       setRegistrationTrend(trend);
+      setRegistrationGrowthTrend(growthTrend);
       setCustomerReviews(reviewData.customerReviews);
       setProviderReviews(reviewData.providerReviews);
       setAverageRating(reviewData.averageRating);
@@ -130,17 +134,6 @@ const Dashboard = () => {
   const userTypeData = [
     { name: 'Customers', value: stats.totalCustomers },
     { name: 'Service Providers', value: stats.totalProviders }
-  ];
-
-  // Mock growth data if actual history isn't available from service
-  const userGrowthData = [
-    { month: 'Jan', users: Math.floor(stats.totalUsers * 0.4) },
-    { month: 'Feb', users: Math.floor(stats.totalUsers * 0.5) },
-    { month: 'Mar', users: Math.floor(stats.totalUsers * 0.6) },
-    { month: 'Apr', users: Math.floor(stats.totalUsers * 0.75) },
-    { month: 'May', users: Math.floor(stats.totalUsers * 0.85) },
-    { month: 'Jun', users: Math.floor(stats.totalUsers * 0.95) },
-    { month: 'Jul', users: stats.totalUsers }
   ];
 
   if (loading) {
@@ -219,31 +212,32 @@ const Dashboard = () => {
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-        {/* User Growth Chart */}
+        {/* Registration Trend Chart */}
         <div className="card-premium p-6 sm:p-8">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-lg font-bold text-slate-900">User Growth</h3>
-              <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">Last 7 Months</p>
+              <h3 className="text-lg font-bold text-slate-900">Registration Activity</h3>
+              <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">Last 30 Days</p>
             </div>
           </div>
 
           <div className="h-[350px] w-full mt-4">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={userGrowthData}>
+              <AreaChart data={registrationGrowthTrend}>
                 <defs>
-                  <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="colorRegistrations" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#6366f1" stopOpacity={0.15} />
                     <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis
-                  dataKey="month"
+                  dataKey="date"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: '#94a3b8', fontSize: 12 }}
+                  tick={{ fill: '#94a3b8', fontSize: 10 }}
                   dy={10}
+                  interval={Math.ceil(registrationGrowthTrend.length / 10)}
                 />
                 <YAxis
                   axisLine={false}
@@ -252,14 +246,16 @@ const Dashboard = () => {
                 />
                 <Tooltip
                   contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                  labelStyle={{ fontWeight: 'bold' }}
                 />
                 <Area
                   type="monotone"
-                  dataKey="users"
+                  dataKey="total"
+                  name="Daily Registrations"
                   stroke="#6366f1"
                   strokeWidth={3}
                   fillOpacity={1}
-                  fill="url(#colorUsers)"
+                  fill="url(#colorRegistrations)"
                 />
               </AreaChart>
             </ResponsiveContainer>

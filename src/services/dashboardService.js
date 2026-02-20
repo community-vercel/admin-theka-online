@@ -196,25 +196,24 @@ export const dashboardService = {
     }
   },
 
-  // Get daily registration trend (last 7 days)
-  async getRegistrationTrend() {
+  // Get daily registration trend (last 30 days)
+  async getRegistrationTrend30Days() {
     try {
       const customers = await getDocs(collection(db, "Customers"));
       const providers = await getDocs(collection(db, "ServiceProviders"));
 
-      const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const last30Days = Array.from({ length: 30 }, (_, i) => {
         const date = new Date();
         date.setDate(date.getDate() - i);
         date.setHours(0, 0, 0, 0);
         return date;
       }).reverse();
 
-      const dailyData = last7Days.map(date => {
-        const dayStr = date.toLocaleDateString('en-US', { weekday: 'short' });
-        const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const dailyData = last30Days.map(date => {
+        const dateLabel = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         return {
-          day: dayStr,
-          date: dateStr,
+          date: dateLabel,
+          fullDate: date,
           customers: 0,
           providers: 0,
           total: 0
@@ -224,38 +223,57 @@ export const dashboardService = {
       // Process customers
       customers.forEach(doc => {
         const data = doc.data();
-        const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : new Date();
-        const createdDate = new Date(createdAt);
-        createdDate.setHours(0, 0, 0, 0);
+        const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() :
+          (data.createdAt ? new Date(data.createdAt) : null);
 
-        const index = last7Days.findIndex(date =>
-          date.getTime() === createdDate.getTime()
-        );
+        if (createdAt) {
+          const createdDate = new Date(createdAt);
+          createdDate.setHours(0, 0, 0, 0);
 
-        if (index !== -1) {
-          dailyData[index].customers++;
-          dailyData[index].total++;
+          const index = last30Days.findIndex(date =>
+            date.getTime() === createdDate.getTime()
+          );
+
+          if (index !== -1) {
+            dailyData[index].customers++;
+            dailyData[index].total++;
+          }
         }
       });
 
       // Process service providers
       providers.forEach(doc => {
         const data = doc.data();
-        const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : new Date();
-        const createdDate = new Date(createdAt);
-        createdDate.setHours(0, 0, 0, 0);
+        const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() :
+          (data.createdAt ? new Date(data.createdAt) : null);
 
-        const index = last7Days.findIndex(date =>
-          date.getTime() === createdDate.getTime()
-        );
+        if (createdAt) {
+          const createdDate = new Date(createdAt);
+          createdDate.setHours(0, 0, 0, 0);
 
-        if (index !== -1) {
-          dailyData[index].providers++;
-          dailyData[index].total++;
+          const index = last30Days.findIndex(date =>
+            date.getTime() === createdDate.getTime()
+          );
+
+          if (index !== -1) {
+            dailyData[index].providers++;
+            dailyData[index].total++;
+          }
         }
       });
 
       return dailyData;
+    } catch (error) {
+      console.error("Error getting 30-day registration trend:", error);
+      throw error;
+    }
+  },
+
+  // Get daily registration trend (last 7 days)
+  async getRegistrationTrend() {
+    try {
+      const dailyData = await this.getRegistrationTrend30Days();
+      return dailyData.slice(-7);
     } catch (error) {
       console.error("Error getting registration trend:", error);
       throw error;

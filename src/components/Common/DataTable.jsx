@@ -1,5 +1,5 @@
 // src/components/Common/DataTable.jsx
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { HiChevronLeft, HiChevronRight, HiChevronUp, HiChevronDown } from 'react-icons/hi';
 
 const DataTable = ({ columns, data, itemsPerPage = 10, responsiveBreakpoint = 'sm' }) => {
@@ -19,20 +19,20 @@ const DataTable = ({ columns, data, itemsPerPage = 10, responsiveBreakpoint = 's
   };
 
   // Initialize and update on resize
-  useState(() => {
+  useEffect(() => {
     updateView();
     window.addEventListener('resize', updateView);
     return () => window.removeEventListener('resize', updateView);
-  });
+  }, [responsiveBreakpoint]);
 
   // Sort data
   const sortedData = useMemo(() => {
     if (!sortConfig.key) return data;
-    
+
     return [...data].sort((a, b) => {
       const aValue = a[sortConfig.key];
       const bValue = b[sortConfig.key];
-      
+
       if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
       if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
       return 0;
@@ -61,7 +61,7 @@ const DataTable = ({ columns, data, itemsPerPage = 10, responsiveBreakpoint = 's
             {column.Header}
           </div>
           <div className="text-sm text-gray-900 mt-1">
-            {column.Cell 
+            {column.Cell
               ? column.Cell({ value: item[column.accessor], row: item })
               : item[column.accessor]}
           </div>
@@ -74,19 +74,19 @@ const DataTable = ({ columns, data, itemsPerPage = 10, responsiveBreakpoint = 's
   const getPageNumbers = () => {
     const maxVisiblePages = isMobileView ? 3 : 5;
     const half = Math.floor(maxVisiblePages / 2);
-    
+
     let start = Math.max(currentPage - half, 1);
     let end = Math.min(start + maxVisiblePages - 1, totalPages);
-    
+
     if (end - start + 1 < maxVisiblePages) {
       start = Math.max(end - maxVisiblePages + 1, 1);
     }
-    
+
     const pages = [];
     for (let i = start; i <= end; i++) {
       pages.push(i);
     }
-    
+
     return pages;
   };
 
@@ -98,7 +98,7 @@ const DataTable = ({ columns, data, itemsPerPage = 10, responsiveBreakpoint = 's
           {currentData.map((item, index) => (
             <MobileCardView key={index} item={item} />
           ))}
-          
+
           {/* Mobile Table View Toggle */}
           <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
             <table className="min-w-full divide-y divide-gray-200 text-sm">
@@ -119,7 +119,7 @@ const DataTable = ({ columns, data, itemsPerPage = 10, responsiveBreakpoint = 's
                   <tr key={rowIndex}>
                     {columns.slice(0, 2).map((column) => (
                       <td key={column.accessor} className="px-3 py-2">
-                        {column.Cell 
+                        {column.Cell
                           ? column.Cell({ value: row[column.accessor], row })
                           : row[column.accessor]}
                       </td>
@@ -162,12 +162,12 @@ const DataTable = ({ columns, data, itemsPerPage = 10, responsiveBreakpoint = 's
               {currentData.map((row, rowIndex) => (
                 <tr key={rowIndex} className="hover:bg-gray-50 transition-colors">
                   {columns.map((column) => (
-                    <td 
-                      key={column.accessor} 
+                    <td
+                      key={column.accessor}
                       className="px-4 py-3 text-sm text-gray-900"
                     >
                       <div className="truncate max-w-[200px] lg:max-w-[300px] xl:max-w-none">
-                        {column.Cell 
+                        {column.Cell
                           ? column.Cell({ value: row[column.accessor], row })
                           : row[column.accessor]}
                       </div>
@@ -189,7 +189,7 @@ const DataTable = ({ columns, data, itemsPerPage = 10, responsiveBreakpoint = 's
               <span className="font-medium">{Math.min(endIndex, sortedData.length)}</span> of{' '}
               <span className="font-medium">{sortedData.length}</span> entries
             </div>
-            
+
             <div className="flex items-center space-x-1 sm:space-x-2">
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -199,7 +199,7 @@ const DataTable = ({ columns, data, itemsPerPage = 10, responsiveBreakpoint = 's
               >
                 <HiChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
-              
+
               {/* First page */}
               {currentPage > 3 && !isMobileView && (
                 <>
@@ -212,22 +212,21 @@ const DataTable = ({ columns, data, itemsPerPage = 10, responsiveBreakpoint = 's
                   {currentPage > 4 && <span className="px-1">...</span>}
                 </>
               )}
-              
+
               {/* Page numbers */}
               {getPageNumbers().map((page) => (
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`px-2 sm:px-3 py-1 rounded-lg text-sm sm:text-base transition-colors ${
-                    currentPage === page
-                      ? 'bg-blue-600 text-white border-transparent'
-                      : 'border border-gray-300 hover:bg-gray-50'
-                  }`}
+                  className={`px-2 sm:px-3 py-1 rounded-lg text-sm sm:text-base transition-colors ${currentPage === page
+                    ? 'bg-blue-600 text-white border-transparent'
+                    : 'border border-gray-300 hover:bg-gray-50'
+                    }`}
                 >
                   {page}
                 </button>
               ))}
-              
+
               {/* Last page */}
               {currentPage < totalPages - 2 && !isMobileView && (
                 <>
@@ -240,7 +239,7 @@ const DataTable = ({ columns, data, itemsPerPage = 10, responsiveBreakpoint = 's
                   </button>
                 </>
               )}
-              
+
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
@@ -250,7 +249,7 @@ const DataTable = ({ columns, data, itemsPerPage = 10, responsiveBreakpoint = 's
                 <HiChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             </div>
-            
+
             {/* Mobile page info */}
             {isMobileView && (
               <div className="text-sm text-gray-600">
@@ -258,7 +257,7 @@ const DataTable = ({ columns, data, itemsPerPage = 10, responsiveBreakpoint = 's
               </div>
             )}
           </div>
-          
+
           {/* Items per page selector for larger screens */}
           {!isMobileView && totalPages > 5 && (
             <div className="mt-4 flex items-center justify-end">
