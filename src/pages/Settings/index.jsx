@@ -29,6 +29,7 @@ const Settings = () => {
     skilled: [],
     unskilled: []
   });
+  const [categorySubcategories, setCategorySubcategories] = useState({}); // { categoryName: [subs] }
 
   // Cities state
   const [newCity, setNewCity] = useState('');
@@ -47,6 +48,13 @@ const Settings = () => {
   const [categoriesPerPage] = useState(12);
   const [categorySortOrder, setCategorySortOrder] = useState('asc');
 
+  // Subcategories state
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null); // { name, type }
+  const [subcategories, setSubcategories] = useState([]);
+  const [subLoading, setSubLoading] = useState(false);
+  const [newSubcategory, setNewSubcategory] = useState('');
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -63,6 +71,26 @@ const Settings = () => {
 
       setCities(citiesData);
       setCategories(categoriesData);
+
+      // Fetch subcategories for all categories
+      const allCats = [...categoriesData.skilled, ...categoriesData.unskilled];
+      const subData = {};
+
+      // Fetch in parallel
+      const subPromises = allCats.map(async (cat) => {
+        const type = categoriesData.skilled.includes(cat) ? 'skilled' : 'unskilled';
+        try {
+          const subs = await settingsService.getSubcategories(type, cat);
+          subData[cat] = subs;
+        } catch (e) {
+          console.error(`Error fetching subcategories for ${cat}:`, e);
+          subData[cat] = [];
+        }
+      });
+
+      await Promise.all(subPromises);
+      setCategorySubcategories(subData);
+
     } catch (error) {
       console.error('Error fetching settings data:', error);
       toast.error('Failed to load settings data');
@@ -115,6 +143,10 @@ const Settings = () => {
         newCategory.name.trim()
       );
       setCategories(updatedCategories);
+      setCategorySubcategories(prev => ({
+        ...prev,
+        [newCategory.name.trim()]: []
+      }));
       setNewCategory({ name: '', type: 'skilled' });
       toast.success('Category added successfully');
     } catch (error) {
@@ -136,6 +168,81 @@ const Settings = () => {
         console.error('Error deleting category:', error);
         toast.error('Failed to delete category');
       }
+    }
+  };
+
+  const handleManageSubcategories = async (categoryType, categoryName) => {
+    setSelectedCategory({ name: categoryName, type: categoryType });
+    setNewSubcategory(''); // Reset input
+    setIsSubModalOpen(true);
+    setSubLoading(true);
+    try {
+      const data = await settingsService.getSubcategories(categoryType, categoryName);
+      setSubcategories(data);
+      setCategorySubcategories(prev => ({ ...prev, [categoryName]: data }));
+    } catch (error) {
+      console.error('Error loading subcategories:', error);
+      toast.error('Failed to load subcategories');
+    } finally {
+      setSubLoading(false);
+    }
+  };
+
+  const handleAddSubcategory = async () => {
+    const trimmedSub = newSubcategory.trim();
+    
+    if (!trimmedSub) {
+      toast.error('Please enter a subcategory name');
+      return;
+    }
+    
+    if (subcategories.includes(trimmedSub)) {
+      toast.error('Subcategory already exists');
+      return;
+    }
+
+    if (!selectedCategory) {
+      toast.error('No category selected');
+      return;
+    }
+
+    try {
+      const updated = [...subcategories, trimmedSub];
+      await settingsService.updateSubcategories(
+        selectedCategory.type,
+        selectedCategory.name,
+        updated
+      );
+      setSubcategories(updated);
+      setCategorySubcategories(prev => ({
+        ...prev,
+        [selectedCategory.name]: updated
+      }));
+      setNewSubcategory('');
+      toast.success('Subcategory added successfully');
+    } catch (error) {
+      console.error('Error adding subcategory:', error);
+      toast.error(error.message || 'Failed to add subcategory');
+    }
+  };
+
+  const handleDeleteSubcategory = async (subName) => {
+    const updated = subcategories.filter(s => s !== subName);
+    try {
+      await settingsService.updateSubcategories(
+        selectedCategory.type,
+        selectedCategory.name,
+        updated
+      );
+      setSubcategories(updated);
+      setCategorySubcategories(prev => ({
+        ...prev,
+        [selectedCategory.name]: updated
+      }));
+      toast.success('Subcategory deleted');
+    } catch (error) {
+      console.error('Error deleting subcategory:', error);
+      toast.error('Failed to delete subcategory');
     }
   };
 
@@ -289,8 +396,23 @@ const Settings = () => {
           categoryIndexOfFirstItem={categoryIndexOfFirstItem}
           categoryIndexOfLastItem={categoryIndexOfLastItem}
           currentCategories={currentCategories}
+          onManageSubcategories={handleManageSubcategories}
+          categorySubcategories={categorySubcategories}
         />
       )}
+
+      {/* Subcategories Modal */}
+      <SubcategoriesModal
+        isOpen={isSubModalOpen}
+        onClose={() => setIsSubModalOpen(false)}
+        category={selectedCategory}
+        subcategories={subcategories}
+        loading={subLoading}
+        newSubcategory={newSubcategory}
+        setNewSubcategory={setNewSubcategory}
+        onAdd={handleAddSubcategory}
+        onDelete={handleDeleteSubcategory}
+      />
     </div>
   );
 };
@@ -514,11 +636,10 @@ const ServicesTab = ({
   categoriesPerPage,
   categoryIndexOfFirstItem,
   categoryIndexOfLastItem,
-  currentCategories
+  currentCategories,
+  onManageSubcategories,
+  categorySubcategories
 }) => {
-  console.log('Skilled categories:', skilled); // Debug log
-  console.log('Unskilled categories:', unskilled); // Debug log
-
   return (
     <div className="space-y-6">
       {/* Add Category Form */}
@@ -609,7 +730,6 @@ const ServicesTab = ({
           </div>
         </div>
 
-
         {/* Skilled Categories */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between mb-4">
@@ -629,23 +749,45 @@ const ServicesTab = ({
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {skilled.map((category) => (
-                <div key={category} className="group relative p-4 bg-white border border-gray-200 rounded-lg hover:border-purple-300 hover:shadow-sm transition-all">
-                  <div className="flex items-center justify-between">
+                <div key={category} className="flex flex-col p-4 bg-white border border-gray-200 rounded-lg hover:border-purple-300 hover:shadow-md transition-all">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
                         <HiBriefcase className="h-4 w-4 text-purple-600" />
                       </div>
-                      <span className="font-medium text-gray-900">{category}</span>
+                      <span className="font-bold text-gray-900">{category}</span>
                     </div>
-                    <button
-                      onClick={() => onDeleteCategory('skilled', category)}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-red-600 hover:text-red-900 hover:bg-red-50 rounded transition-colors"
-                      title="Delete Category"
-                    >
-                      <HiTrash className="h-4 w-4" />
-                    </button>
+                    <div className="flex items-center space-x-1">
+                      <button
+                        onClick={() => onManageSubcategories('skilled', category)}
+                        className="p-1.5 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Manage Subcategories"
+                      >
+                        <HiPlus className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => onDeleteCategory('skilled', category)}
+                        className="p-1.5 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete Category"
+                      >
+                        <HiTrash className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Subcategories Display */}
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    {categorySubcategories[category]?.length > 0 ? (
+                      categorySubcategories[category].map((sub, i) => (
+                        <span key={i} className="text-[11px] px-2 py-0.5 bg-gray-50 text-gray-600 border border-gray-100 rounded-full">
+                          {sub}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-xs text-gray-400 italic">No subcategories</span>
+                    )}
                   </div>
                 </div>
               ))}
@@ -673,23 +815,45 @@ const ServicesTab = ({
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {unskilled.map((category) => (
-                <div key={category} className="group relative p-4 bg-white border border-gray-200 rounded-lg hover:border-indigo-300 hover:shadow-sm transition-all">
-                  <div className="flex items-center justify-between">
+                <div key={category} className="flex flex-col p-4 bg-white border border-gray-200 rounded-lg hover:border-indigo-300 hover:shadow-md transition-all">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
                         <HiHome className="h-4 w-4 text-indigo-600" />
                       </div>
-                      <span className="font-medium text-gray-900">{category}</span>
+                      <span className="font-bold text-gray-900">{category}</span>
                     </div>
-                    <button
-                      onClick={() => onDeleteCategory('unskilled', category)}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-red-600 hover:text-red-900 hover:bg-red-50 rounded transition-colors"
-                      title="Delete Category"
-                    >
-                      <HiTrash className="h-4 w-4" />
-                    </button>
+                    <div className="flex items-center space-x-1">
+                      <button
+                        onClick={() => onManageSubcategories('unskilled', category)}
+                        className="p-1.5 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Manage Subcategories"
+                      >
+                        <HiPlus className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => onDeleteCategory('unskilled', category)}
+                        className="p-1.5 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete Category"
+                      >
+                        <HiTrash className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Subcategories Display */}
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    {categorySubcategories[category]?.length > 0 ? (
+                      categorySubcategories[category].map((sub, i) => (
+                        <span key={i} className="text-[11px] px-2 py-0.5 bg-gray-50 text-gray-600 border border-gray-100 rounded-full">
+                          {sub}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-xs text-gray-400 italic">No subcategories</span>
+                    )}
                   </div>
                 </div>
               ))}
@@ -789,6 +953,111 @@ const ServicesTab = ({
             </div>
             <HiHome className="h-12 w-12 opacity-80" />
           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const SubcategoriesModal = ({
+  isOpen,
+  onClose,
+  category,
+  subcategories,
+  loading,
+  newSubcategory,
+  setNewSubcategory,
+  onAdd,
+  onDelete
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-black/50 transition-opacity" 
+        aria-hidden="true" 
+        onClick={onClose}
+      ></div>
+
+      {/* Modal Content */}
+      <div className="relative bg-white rounded-lg shadow-2xl w-full max-w-lg transform transition-all">
+        <div className="px-6 pt-5 pb-4">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Manage Subcategories: <span className="text-blue-600 font-bold">{category?.name}</span>
+            </h3>
+            <button 
+              onClick={onClose} 
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+              title="Close"
+            >
+              <HiX className="h-6 w-6" />
+            </button>
+          </div>
+
+          <div className="mb-6">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newSubcategory}
+                onChange={(e) => setNewSubcategory(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    onAdd();
+                  }
+                }}
+                placeholder="Enter subcategory name..."
+                className="input-field flex-1"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={onAdd}
+                className="btn-primary px-4 flex items-center justify-center whitespace-nowrap"
+                disabled={loading}
+              >
+                <HiPlus className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg bg-gray-50">
+            {loading ? (
+              <div className="flex justify-center p-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            ) : subcategories.length === 0 ? (
+              <p className="text-center py-8 text-gray-500 italic">No subcategories yet</p>
+            ) : (
+              <ul className="divide-y divide-gray-200">
+                {subcategories.map((sub, idx) => (
+                  <li key={idx} className="flex items-center justify-between p-4 hover:bg-white transition-colors">
+                    <span className="text-gray-800 font-medium">{sub}</span>
+                    <button
+                      onClick={() => onDelete(sub)}
+                      className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
+                      title="Delete"
+                    >
+                      <HiTrash className="h-4 w-4" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+
+        <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 rounded-b-lg flex justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>
