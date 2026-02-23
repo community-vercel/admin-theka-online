@@ -159,8 +159,8 @@ const LogDetails = () => {
                             </div>
                             <div className="text-right">
                                 <div className="flex items-center gap-1 justify-end text-emerald-600">
-                                    <HiCurrencyDollar className="h-5 w-5" />
-                                    <span className="text-2xl font-black">{log.price || 0}</span>
+                                    {/* <HiCurrencyDollar className="h-5 w-5" /> */}
+                                    <span className="text-2xl font-black">PKR {log.price || 0}</span>
                                 </div>
                                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Total Fee</p>
                             </div>
