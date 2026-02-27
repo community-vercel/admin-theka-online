@@ -150,7 +150,7 @@ const Dashboard = () => {
   return (
     <div className="space-y-8 pb-10">
       {/* Header Section - Clean Professional Style */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
             Dashboard Overview
@@ -160,7 +160,7 @@ const Dashboard = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-2xl border border-slate-200 shadow-sm self-start md:self-auto">
+        <div className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-2xl border border-slate-200 shadow-sm self-start sm:self-auto">
           <HiCalendar className="h-5 w-5 text-indigo-500" />
           <span className="text-slate-700 text-sm font-bold">
             {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
@@ -168,13 +168,14 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Stats Grid - Using premium spacing */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
         <StatsCard
           title="Total Users"
-          value={stats.totalUsers.toLocaleString()}
-          icon={<HiUsers className="h-6 w-6" />}
-          color="blue"
+          value={stats.totalUsers}
+          icon={<HiUsers />}
+          color="indigo"
+          onClick={() => navigate('/users')}
           subtitle={`${stats.totalCustomers} customers, ${stats.totalProviders} providers`}
         />
         <StatsCard
@@ -312,15 +313,19 @@ const Dashboard = () => {
       </div>
 
       {/* Second Row Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Registration Trend Area Chart */}
         <div className="card-premium p-6 sm:p-8">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-lg font-bold text-slate-900">Registration Trend</h3>
-              <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">Last 7 days</p>
+              <h2 className="text-xl font-bold text-slate-800 tracking-tight">Registration Trends</h2>
+              <p className="text-slate-400 text-sm font-medium mt-1">New users over the last 30 days</p>
+            </div>
+            <div className="h-10 w-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+              <HiCalendar className="h-5 w-5" />
             </div>
           </div>
-          <div className="h-[350px] w-full mt-4">
+          <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={registrationTrend}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />

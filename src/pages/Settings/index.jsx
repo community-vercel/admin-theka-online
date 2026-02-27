@@ -190,12 +190,12 @@ const Settings = () => {
 
   const handleAddSubcategory = async () => {
     const trimmedSub = newSubcategory.trim();
-    
+
     if (!trimmedSub) {
       toast.error('Please enter a subcategory name');
       return;
     }
-    
+
     if (subcategories.includes(trimmedSub)) {
       toast.error('Subcategory already exists');
       return;
@@ -309,8 +309,8 @@ const Settings = () => {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="flex space-x-8">
+      <div className="border-b border-gray-200 overflow-x-auto custom-scrollbar">
+        <nav className="flex space-x-8 min-w-max pb-px">
           <button
             onClick={() => setActiveTab('cities')}
             className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-colors ${activeTab === 'cities'
@@ -975,9 +975,9 @@ const SubcategoriesModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black/50 transition-opacity" 
-        aria-hidden="true" 
+      <div
+        className="fixed inset-0 bg-black/50 transition-opacity"
+        aria-hidden="true"
         onClick={onClose}
       ></div>
 
@@ -988,8 +988,8 @@ const SubcategoriesModal = ({
             <h3 className="text-lg font-semibold text-gray-900">
               Manage Subcategories: <span className="text-blue-600 font-bold">{category?.name}</span>
             </h3>
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors"
               title="Close"
             >

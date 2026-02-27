@@ -55,10 +55,19 @@ const Navbar = ({ onMenuClick, isMobile, user = null }) => {
 
   // Handle search
   const handleSearch = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     console.log('Searching for:', search);
-    // Implement search logic here
+    // Broadcast search event to all listeners
+    window.dispatchEvent(new CustomEvent('app:search', { detail: search }));
   };
+
+  // Broadcast on value change too for real-time results
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('app:search', { detail: search }));
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [search]);
 
   // Notifications data
   const notifications = [

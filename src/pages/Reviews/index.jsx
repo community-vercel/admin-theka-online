@@ -10,6 +10,15 @@ const ReviewsPage = () => {
     const [activeTab, setActiveTab] = useState('customer');
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+
+    // Listen for global search events from Navbar
+    useEffect(() => {
+        const handleGlobalSearch = (e) => {
+            setSearchTerm(e.detail || '');
+        };
+        window.addEventListener('app:search', handleGlobalSearch);
+        return () => window.removeEventListener('app:search', handleGlobalSearch);
+    }, []);
     const [ratingFilter, setRatingFilter] = useState('all');
     const navigate = useNavigate();
 
@@ -58,20 +67,20 @@ const ReviewsPage = () => {
     return (
         <div className="space-y-8 pb-10">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Platform Reviews</h1>
                     <p className="mt-1 text-slate-500 font-medium text-sm">Manage and monitor all interactions and feedback</p>
                 </div>
-                <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-sm">
+                <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-sm self-start sm:self-auto">
                     <HiCheckCircle className="h-5 w-5 text-indigo-500" />
                     <span className="text-slate-700 text-sm font-bold">{customerReviews.length + providerReviews.length} Total Reviews</span>
                 </div>
             </div>
 
             {/* Filters & Search */}
-            <div className="card-premium p-4 sm:p-6 flex flex-col lg:flex-row gap-4">
-                <div className="relative flex-grow">
+            <div className="card-premium p-4 sm:p-6 flex flex-col md:flex-row gap-4">
+                <div className="relative flex-grow w-full">
                     <HiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5" />
                     <input
                         type="text"
@@ -81,8 +90,8 @@ const ReviewsPage = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <div className="flex gap-4">
-                    <div className="relative min-w-[160px]">
+                <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+                    <div className="relative flex-grow md:min-w-[160px]">
                         <HiFilter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5" />
                         <select
                             className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white appearance-none text-sm font-bold text-slate-700"
@@ -99,7 +108,7 @@ const ReviewsPage = () => {
                     </div>
                     <button
                         onClick={fetchReviews}
-                        className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+                        className="flex-grow md:flex-grow-0 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
                     >
                         Refresh
                     </button>

@@ -22,6 +22,7 @@ import {
   HiHome,
 } from 'react-icons/hi';
 import StatsCard from '../../components/Common/StatsCard';
+import DataTable from '../../components/Common/DataTable';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -46,6 +47,15 @@ const Users = () => {
 
   useEffect(() => {
     fetchUsers();
+  }, [filter]);
+
+  // Listen for global search events from Navbar
+  useEffect(() => {
+    const handleGlobalSearch = (e) => {
+      setSearch(e.detail || '');
+    };
+    window.addEventListener('app:search', handleGlobalSearch);
+    return () => window.removeEventListener('app:search', handleGlobalSearch);
   }, []);
 
   useEffect(() => {
@@ -217,10 +227,10 @@ const Users = () => {
       {/* Header Section - Premium Style */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">User Management</h1>
-          <p className="text-slate-500 mt-1 font-medium">Manage and monitor all platform users across categories</p>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">User Management</h1>
+          <p className="text-slate-500 mt-1 font-medium text-sm sm:text-base">Manage and monitor all platform users across categories</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
           <button
             onClick={fetchUsers}
             className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-all shadow-sm"
@@ -232,7 +242,7 @@ const Users = () => {
               setSelectedUser(null);
               setIsModalOpen(true);
             }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all"
           >
             <HiUserAdd className="h-5 w-5" />
             <span>Add New User</span>
@@ -241,7 +251,7 @@ const Users = () => {
       </div>
 
       {/* Stats Quick View */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
         <StatsCard compact title="Total" value={stats.totalUsers} icon={<HiUserGroup />} color="blue" />
         <StatsCard compact title="Customers" value={stats.totalCustomers} icon={<HiUser />} color="emerald" />
         <StatsCard compact title="Providers" value={stats.totalProviders} icon={<HiBriefcase />} color="indigo" />
@@ -304,122 +314,86 @@ const Users = () => {
             <button onClick={() => { setSearch(''); setFilter('all'); }} className="mt-6 text-indigo-600 font-bold hover:underline">Clear all filters</button>
           </div>
         ) : (
-          <>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-slate-50/50 border-b border-slate-100">
-                    <th className="px-6 py-4 text-left text-[11px] font-black text-slate-400 uppercase tracking-widest">Identity</th>
-                    <th className="hidden sm:table-cell px-6 py-4 text-left text-[11px] font-black text-slate-400 uppercase tracking-widest">Specialization</th>
-                    <th className="hidden md:table-cell px-6 py-4 text-left text-[11px] font-black text-slate-400 uppercase tracking-widest">Network</th>
-                    <th className="px-6 py-4 text-left text-[11px] font-black text-slate-400 uppercase tracking-widest">Standing</th>
-                    <th className="px-6 py-4 text-right text-[11px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {currentUsers.map((user) => (
-                    <tr key={user.id} className="group hover:bg-slate-50/50 transition-colors">
-                      <td className="px-6 py-5">
-                        <div className="flex items-center gap-4">
-                          <div className={`h-11 w-11 rounded-2xl flex items-center justify-center text-white font-black shadow-lg ${user.userType === 'customer'
-                            ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-indigo-100'
-                            : 'bg-gradient-to-br from-purple-500 to-purple-600 shadow-purple-100'
-                            }`}>
-                            {user.name?.charAt(0)?.toUpperCase()}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-bold text-slate-900 truncate group-hover:text-indigo-600 transition-colors">{user.name}</p>
-                            <p className="text-[11px] text-slate-400 uppercase font-black tracking-tight mt-0.5">{user.userType}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="hidden sm:table-cell px-6 py-5">
-                        <div className="space-y-1.5">
-                          <span className={`status-badge ${user.serviceType === 'skilled' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-600'}`}>
-                            {user.serviceType || 'Standard'}
-                          </span>
-                          <p className="text-xs font-bold text-slate-500 truncate max-w-[180px]">{user.serviceCategory || 'No Category'}</p>
-                        </div>
-                      </td>
-                      <td className="hidden md:table-cell px-6 py-5">
-                        <div className="flex flex-col gap-1 min-w-0">
-                          <p className="text-sm font-bold text-slate-700">{user.phone}</p>
-                          <p className="text-[11px] text-slate-400 truncate max-w-[180px]">{user.email}</p>
-                          <p className="text-[10px] text-slate-300 font-medium uppercase tracking-tighter">{user.city}</p>
-                        </div>
-                      </td>
-                      <td className="px-6 py-5">
-                        <div className="flex flex-col gap-2">
-                          <span className={`status-badge w-fit ${user.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                            {user.status}
-                          </span>
-                          {user.isVerified && (
-                            <div className="flex items-center gap-1 text-indigo-500 font-bold text-[10px] uppercase tracking-wider">
-                              <HiCheckCircle className="h-3.5 w-3.5" />
-                              <span>Verified</span>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-5">
-                        <div className="flex items-center justify-end gap-1">
-                          <Link to={`/users/${user.id}`} state={{ user }} className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
-                            <HiEye className="h-5 w-5" />
-                          </Link>
-                          <button onClick={() => handleEdit(user)} className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all">
-                            <HiPencil className="h-5 w-5" />
-                          </button>
-                          <button onClick={() => handleDelete(user.id, user.name, user.userType)} className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all">
-                            <HiTrash className="h-5 w-5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Premium Pagination */}
-            {totalPages > 1 && (
-              <div className="px-8 py-5 border-t border-slate-50 bg-slate-50/30">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                    Showing <span className="text-slate-900">{indexOfFirstUser + 1}-{Math.min(indexOfLastUser, filteredUsers.length)}</span> of {filteredUsers.length}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => paginate(currentPage - 1)}
-                      disabled={currentPage === 1}
-                      className="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-xl border border-slate-200 disabled:opacity-30 hover:bg-white"
-                    >
-                      Prev
-                    </button>
-                    <div className="flex items-center gap-1 px-1">
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1).map((p, i, arr) => (
-                        <div key={p} className="flex items-center gap-1">
-                          {i > 0 && arr[i - 1] !== p - 1 && <span className="text-slate-300">...</span>}
-                          <button
-                            onClick={() => paginate(p)}
-                            className={`h-9 w-9 rounded-xl text-xs font-bold transition-all ${currentPage === p ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'text-slate-500 hover:bg-white'}`}
-                          >
-                            {p}
-                          </button>
-                        </div>
-                      ))}
+          <DataTable
+            data={filteredUsers}
+            columns={[
+              {
+                Header: 'Identity',
+                accessor: 'name',
+                Cell: ({ row }) => (
+                  <div className="flex items-center gap-4">
+                    <div className={`h-11 w-11 rounded-2xl flex items-center justify-center text-white font-black shadow-lg ${row.userType === 'customer'
+                      ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-indigo-100'
+                      : 'bg-gradient-to-br from-purple-500 to-purple-600 shadow-purple-100'
+                      }`}>
+                      {row.name?.charAt(0)?.toUpperCase()}
                     </div>
-                    <button
-                      onClick={() => paginate(currentPage + 1)}
-                      disabled={currentPage === totalPages}
-                      className="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-xl border border-slate-200 disabled:opacity-30 hover:bg-white"
-                    >
-                      Next
+                    <div className="min-w-0">
+                      <p className="font-bold text-slate-900 truncate group-hover:text-indigo-600 transition-colors">{row.name}</p>
+                      <p className="text-[11px] text-slate-400 uppercase font-black tracking-tight mt-0.5">{row.userType}</p>
+                    </div>
+                  </div>
+                )
+              },
+              {
+                Header: 'Specialization',
+                accessor: 'serviceCategory',
+                Cell: ({ row }) => (
+                  <div className="space-y-1.5">
+                    <span className={`status-badge ${row.serviceType === 'skilled' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-600'}`}>
+                      {row.serviceType || 'Standard'}
+                    </span>
+                    <p className="text-xs font-bold text-slate-500 truncate max-w-[180px]">{row.serviceCategory || 'No Category'}</p>
+                  </div>
+                )
+              },
+              {
+                Header: 'Network',
+                accessor: 'email',
+                Cell: ({ row }) => (
+                  <div className="flex flex-col gap-1 min-w-0">
+                    <p className="text-sm font-bold text-slate-700">{row.phone}</p>
+                    <p className="text-[11px] text-slate-400 truncate max-w-[180px]">{row.email}</p>
+                    <p className="text-[10px] text-slate-300 font-medium uppercase tracking-tighter">{row.city}</p>
+                  </div>
+                )
+              },
+              {
+                Header: 'Standing',
+                accessor: 'status',
+                Cell: ({ row }) => (
+                  <div className="flex flex-col gap-2">
+                    <span className={`status-badge w-fit ${row.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                      {row.status}
+                    </span>
+                    {row.isVerified && (
+                      <div className="flex items-center gap-1 text-indigo-500 font-bold text-[10px] uppercase tracking-wider">
+                        <HiCheckCircle className="h-3.5 w-3.5" />
+                        <span>Verified</span>
+                      </div>
+                    )}
+                  </div>
+                )
+              },
+              {
+                Header: 'Actions',
+                accessor: 'actions',
+                Cell: ({ row }) => (
+                  <div className="flex items-center justify-end gap-1">
+                    <Link to={`/users/${row.id}`} state={{ user: row }} className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+                      <HiEye className="h-5 w-5" />
+                    </Link>
+                    <button onClick={() => handleEdit(row)} className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all">
+                      <HiPencil className="h-5 w-5" />
+                    </button>
+                    <button onClick={() => handleDelete(row.id, row.name, row.userType)} className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all">
+                      <HiTrash className="h-5 w-5" />
                     </button>
                   </div>
-                </div>
-              </div>
-            )}
-          </>
+                )
+              }
+            ]}
+          />
         )}
       </div>
 

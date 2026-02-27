@@ -39,6 +39,11 @@ const DataTable = ({ columns, data, itemsPerPage = 10, responsiveBreakpoint = 's
     });
   }, [data, sortConfig]);
 
+  // Reset to first page when data changes (e.g., on search/filter)
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [data]);
+
   const totalPages = Math.ceil(sortedData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -98,48 +103,17 @@ const DataTable = ({ columns, data, itemsPerPage = 10, responsiveBreakpoint = 's
           {currentData.map((item, index) => (
             <MobileCardView key={index} item={item} />
           ))}
-
-          {/* Mobile Table View Toggle */}
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-            <table className="min-w-full divide-y divide-gray-200 text-sm">
-              <thead>
-                <tr>
-                  {columns.slice(0, 2).map((column) => (
-                    <th
-                      key={column.accessor}
-                      className="px-3 py-2 text-left font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      {column.Header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {currentData.slice(0, 3).map((row, rowIndex) => (
-                  <tr key={rowIndex}>
-                    {columns.slice(0, 2).map((column) => (
-                      <td key={column.accessor} className="px-3 py-2">
-                        {column.Cell
-                          ? column.Cell({ value: row[column.accessor], row })
-                          : row[column.accessor]}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
         </div>
       ) : (
-        // Desktop/Tablet View
-        <div className="overflow-x-auto">
+        /* Desktop Table View */
+        <div className="overflow-x-auto custom-scrollbar">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 {columns.map((column) => (
                   <th
                     key={column.accessor}
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     onClick={() => handleSort(column.accessor)}
                   >
                     <div className="flex items-center space-x-1">
@@ -164,7 +138,7 @@ const DataTable = ({ columns, data, itemsPerPage = 10, responsiveBreakpoint = 's
                   {columns.map((column) => (
                     <td
                       key={column.accessor}
-                      className="px-4 py-3 text-sm text-gray-900"
+                      className="px-4 sm:px-6 py-3 text-sm text-gray-900"
                     >
                       <div className="truncate max-w-[200px] lg:max-w-[300px] xl:max-w-none">
                         {column.Cell
@@ -257,30 +231,6 @@ const DataTable = ({ columns, data, itemsPerPage = 10, responsiveBreakpoint = 's
               </div>
             )}
           </div>
-
-          {/* Items per page selector for larger screens */}
-          {!isMobileView && totalPages > 5 && (
-            <div className="mt-4 flex items-center justify-end">
-              <label htmlFor="itemsPerPage" className="text-sm text-gray-600 mr-2">
-                Rows per page:
-              </label>
-              <select
-                id="itemsPerPage"
-                className="border border-gray-300 rounded-lg px-3 py-1 text-sm"
-                value={itemsPerPage}
-                onChange={(e) => {
-                  // You would need to lift this state up or handle differently
-                  // This is just for demonstration
-                  console.log('Change items per page to:', e.target.value);
-                }}
-              >
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-              </select>
-            </div>
-          )}
         </div>
       )}
     </div>

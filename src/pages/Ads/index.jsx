@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { adsService } from '../../services/adsService';
 import AdModal from './AdModal';
 import AdPreview from './AdPreview';
-import { 
+import {
   HiPlus,
   HiRefresh,
   HiTrash,
@@ -24,6 +24,15 @@ const Ads = () => {
   const [filteredAds, setFilteredAds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+
+  // Listen for global search events from Navbar
+  useEffect(() => {
+    const handleGlobalSearch = (e) => {
+      setSearch(e.detail || '');
+    };
+    window.addEventListener('app:search', handleGlobalSearch);
+    return () => window.removeEventListener('app:search', handleGlobalSearch);
+  }, []);
   const [filter, setFilter] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAd, setSelectedAd] = useState(null);
@@ -51,7 +60,7 @@ const Ads = () => {
         adsService.getAds(),
         adsService.getAdStats()
       ]);
-      
+
       setAds(adsData);
       setStats(statsData);
     } catch (error) {
@@ -64,13 +73,13 @@ const Ads = () => {
 
   const filterAds = () => {
     let result = ads.filter(ad => {
-      const matchesSearch = 
+      const matchesSearch =
         ad.title.toLowerCase().includes(search.toLowerCase()) ||
         ad.description.toLowerCase().includes(search.toLowerCase()) ||
         ad.details.toLowerCase().includes(search.toLowerCase());
-      
+
       let matchesFilter = true;
-      
+
       switch (filter) {
         case 'active':
           matchesFilter = ad.isActive;
@@ -84,10 +93,10 @@ const Ads = () => {
         default:
           matchesFilter = true;
       }
-      
+
       return matchesSearch && matchesFilter;
     });
-    
+
     setFilteredAds(result);
   };
 
@@ -120,7 +129,7 @@ const Ads = () => {
         await adsService.createAd(adData);
         toast.success('Ad created successfully');
       }
-      
+
       fetchAds(); // Refresh list
       setIsModalOpen(false);
       setSelectedAd(null);
@@ -147,14 +156,14 @@ const Ads = () => {
           <p className="text-gray-600">Create and manage 300×50 pixel mobile banner ads</p>
         </div>
         <div className="flex items-center space-x-3">
-          <button 
+          <button
             onClick={fetchAds}
             className="btn-secondary flex items-center space-x-2"
           >
             <HiRefresh className="h-5 w-5" />
             <span>Refresh</span>
           </button>
-          <button 
+          <button
             onClick={() => {
               setSelectedAd(null);
               setIsModalOpen(true);
@@ -180,7 +189,7 @@ const Ads = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
@@ -192,7 +201,7 @@ const Ads = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
@@ -204,7 +213,7 @@ const Ads = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
@@ -216,7 +225,7 @@ const Ads = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
@@ -228,7 +237,7 @@ const Ads = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
@@ -244,7 +253,7 @@ const Ads = () => {
 
       {/* Filters & Search */}
       <div className="flex flex-col md:flex-row gap-4">
-        <div className="flex-1 relative">
+        <div className="flex-1 relative w-full">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <HiSearch className="h-5 w-5 text-gray-400" />
           </div>
@@ -253,15 +262,15 @@ const Ads = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search ads by title, description, or details..."
-            className="input-field pl-10"
+            className="input-field pl-10 w-full"
           />
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 w-full md:w-auto">
           <HiFilter className="h-5 w-5 text-gray-500" />
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="input-field"
+            className="input-field flex-grow md:flex-grow-0"
           >
             <option value="all">All Ads</option>
             <option value="active">Active Only</option>
@@ -296,7 +305,7 @@ const Ads = () => {
               <div className="p-4 border-b border-gray-200 flex items-center justify-center">
                 <AdPreview ad={ad} />
               </div>
-              
+
               {/* Ad Details */}
               <div className="p-4 space-y-3">
                 <div className="flex items-start justify-between">
@@ -304,19 +313,18 @@ const Ads = () => {
                     <h3 className="font-semibold text-gray-900 truncate">{ad.title}</h3>
                     <p className="text-sm text-gray-600 mt-1 line-clamp-2">{ad.description}</p>
                   </div>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    ad.isActive 
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ad.isActive
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
+                    }`}>
                     {ad.isActive ? 'Active' : 'Inactive'}
                   </span>
                 </div>
-                
+
                 {/* Color Preview */}
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center space-x-1">
-                    <div 
+                    <div
                       className="w-6 h-6 rounded border border-gray-300"
                       style={{ backgroundColor: ad.bgColor }}
                       title={`Background: ${ad.bgColor}`}
@@ -324,7 +332,7 @@ const Ads = () => {
                     <span className="text-xs text-gray-500">BG</span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <div 
+                    <div
                       className="w-6 h-6 rounded border border-gray-300"
                       style={{ backgroundColor: ad.textColor }}
                       title={`Text: ${ad.textColor}`}
@@ -335,14 +343,14 @@ const Ads = () => {
                     {ad.width}px × {ad.height}px
                   </div>
                 </div>
-                
+
                 {/* Additional Details */}
                 {ad.details && (
                   <div className="text-sm text-gray-700 bg-gray-50 p-2 rounded">
                     <span className="font-medium">Details:</span> {ad.details}
                   </div>
                 )}
-                
+
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-500">Clicks:</span>
@@ -357,12 +365,12 @@ const Ads = () => {
                     <span className="font-medium">{formatDate(ad.createdAt)}</span>
                   </div>
                 </div>
-                
+
                 {ad.link && (
                   <div className="pt-2">
-                    <a 
-                      href={ad.link} 
-                      target="_blank" 
+                    <a
+                      href={ad.link}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm text-blue-600 hover:text-blue-800 flex items-center space-x-1"
                     >
@@ -372,7 +380,7 @@ const Ads = () => {
                   </div>
                 )}
               </div>
-              
+
               {/* Actions */}
               <div className="flex items-center justify-between p-4 border-t border-gray-200">
                 <div className="flex items-center space-x-2">

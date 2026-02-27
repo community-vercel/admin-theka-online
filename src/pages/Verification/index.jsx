@@ -21,7 +21,8 @@ import {
   HiFilter,
   HiDownload,
   HiChevronLeft,
-  HiChevronRight
+  HiChevronRight,
+  HiSearch
 } from 'react-icons/hi';
 import { serviceProviderService } from '../../services/serviceProviderService';
 import DataTable from '../../components/Common/DataTable';
@@ -31,6 +32,16 @@ const Verification = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Listen for global search events from Navbar
+  useEffect(() => {
+    const handleGlobalSearch = (e) => {
+      setSearchTerm(e.detail || '');
+    };
+    window.addEventListener('app:search', handleGlobalSearch);
+    return () => window.removeEventListener('app:search', handleGlobalSearch);
+  }, []);
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
@@ -54,7 +65,7 @@ const Verification = () => {
   // Reset grid page when filters change
   useEffect(() => {
     setGridCurrentPage(1);
-  }, [filter, filters, requests.length]);
+  }, [filter, filters, searchTerm, requests.length]);
 
   // Fetch service providers from Firestore
   useEffect(() => {
@@ -249,6 +260,17 @@ const Verification = () => {
   // Filter and sort requests
   const filteredRequests = requests.filter(request => {
     if (filter !== 'all' && request.accountStatus !== filter) return false;
+
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      const matchesSearch =
+        request.name?.toLowerCase().includes(searchLower) ||
+        request.email?.toLowerCase().includes(searchLower) ||
+        request.city?.toLowerCase().includes(searchLower) ||
+        request.phone?.includes(searchTerm);
+
+      if (!matchesSearch) return false;
+    }
 
     if (filters.category !== 'all' && request.serviceCategory !== filters.category) return false;
 
@@ -454,7 +476,20 @@ const Verification = () => {
           <p className="text-slate-500 mt-1 font-medium">Verify and authenticate service provider credentials</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+          <div className="relative group w-full md:min-w-[300px] md:w-auto">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <HiSearch className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+            </div>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search providers..."
+              className="input-field pl-12 bg-white border-slate-200 focus:bg-white w-full"
+            />
+          </div>
+
           <button
             onClick={handleExport}
             className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-50 transition-all"
@@ -539,8 +574,8 @@ const Verification = () => {
 
       {/* Bulk Actions Command Bar */}
       {selectedRequests.length > 0 && (
-        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 transform animate-in slide-in-from-bottom-10 duration-500">
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-6 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-xl">
+        <div className="fixed bottom-20 sm:bottom-10 left-1/2 -translate-x-1/2 z-50 transform animate-in slide-in-from-bottom-10 duration-500 w-[calc(100%-2rem)] max-w-2xl px-2">
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-xl">
             <div className="flex items-center gap-3 border-r border-slate-100 pr-6 mr-2">
               <span className="h-6 w-6 rounded-full bg-indigo-600 flex items-center justify-center text-[10px] font-black text-white">
                 {selectedRequests.length}
@@ -575,12 +610,12 @@ const Verification = () => {
       )}
 
       {/* Segmented Filter Tabs */}
-      <div className="flex bg-slate-100/50 p-1.5 rounded-2xl w-fit">
+      <div className="flex flex-wrap bg-slate-100/50 p-1.5 rounded-2xl w-full sm:w-fit gap-1">
         {['all', 'pending', 'accepted', 'rejected'].map((status) => (
           <button
             key={status}
             onClick={() => setFilter(status)}
-            className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${filter === status ? 'bg-white text-indigo-600 shadow-sm border border-slate-100' : 'text-slate-500 hover:text-slate-700'}`}
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all ${filter === status ? 'bg-white text-indigo-600 shadow-sm border border-slate-100' : 'text-slate-500 hover:text-slate-700'}`}
           >
             {status} {status === 'pending' && stats.pending > 0 && <span className="ml-1.5 text-amber-500">•</span>}
           </button>
