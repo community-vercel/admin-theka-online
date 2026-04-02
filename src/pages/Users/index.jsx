@@ -1,6 +1,6 @@
 // src/pages/Users/index.jsx
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { userService } from '../../services/userService';
 import { notificationService } from '../../services/notificationService';
@@ -16,10 +16,11 @@ import {
   HiUserAdd,
   HiChartBar,
   HiCheckCircle,
+  HiXCircle,
   HiUserGroup,
   HiBriefcase,
-  HiUser,
   HiHome,
+  HiSortDescending,
 } from 'react-icons/hi';
 import StatsCard from '../../components/Common/StatsCard';
 import DataTable from '../../components/Common/DataTable';
@@ -38,12 +39,15 @@ const Users = () => {
     unskilledProviders: 0,
     verifiedUsers: 0,
     activeUsers: 0,
-    newToday: 0
+    newToday: 0,
+    rejectedProviders: 0
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(10);
+  const [sortBy, setSortBy] = useState('newest');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUsers();
@@ -60,7 +64,7 @@ const Users = () => {
 
   useEffect(() => {
     filterUsers();
-  }, [users, search, filter]);
+  }, [users, search, filter, sortBy]);
 
   const fetchUsers = async () => {
     try {
@@ -122,6 +126,18 @@ const Users = () => {
       }
 
       return matchesSearch && matchesFilter;
+    });
+
+    // Apply Sorting
+    result.sort((a, b) => {
+      if (sortBy === 'newest') {
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      } else if (sortBy === 'oldest') {
+        return new Date(a.createdAt) - new Date(b.createdAt);
+      } else if (sortBy === 'name') {
+        return a.name.localeCompare(b.name);
+      }
+      return 0;
     });
 
     setFilteredUsers(result);
@@ -244,20 +260,27 @@ const Users = () => {
             }}
             className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all"
           >
-            <HiUserAdd className="h-5 w-5" />
             <span>Add New User</span>
           </button>
         </div>
       </div>
 
       {/* Stats Quick View */}
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
-        <StatsCard compact title="Total" value={stats.totalUsers} icon={<HiUserGroup />} color="blue" />
-        <StatsCard compact title="Customers" value={stats.totalCustomers} icon={<HiUser />} color="emerald" />
+      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4">
+        <StatsCard compact title="Total" value={stats.totalUsers} color="blue" />
+        <StatsCard compact title="Customers" value={stats.totalCustomers} color="emerald" />
         <StatsCard compact title="Providers" value={stats.totalProviders} icon={<HiBriefcase />} color="indigo" />
         <StatsCard compact title="Skilled" value={stats.skilledProviders} icon={<HiCheckCircle />} color="violet" />
         <StatsCard compact title="Unskilled" value={stats.unskilledProviders} icon={<HiHome />} color="amber" />
-        <StatsCard compact title="Today" value={stats.newToday} icon={<HiPlus />} color="rose" />
+        <StatsCard compact title="Today" value={stats.newToday} icon={<HiPlus />} color="blue" />
+        <StatsCard
+          compact
+          title="Rejected"
+          value={stats.rejectedProviders || 0}
+          icon={<HiXCircle />}
+          color="rose"
+          onClick={() => navigate('/rejected-applications')}
+        />
       </div>
 
       {/* Modern Filter & Search Bar */}
@@ -273,6 +296,20 @@ const Users = () => {
             placeholder="Search by name, email, phone or category..."
             className="input-field pl-12 bg-white/50 focus:bg-white border-slate-200"
           />
+        </div>
+        <div className="flex items-center gap-3 min-w-[200px]">
+          <div className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-400">
+            <HiSortDescending className="h-5 w-5" />
+          </div>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="input-field bg-white border-slate-200 font-semibold text-slate-700"
+          >
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="name">Sort by Name</option>
+          </select>
         </div>
         <div className="flex items-center gap-3 min-w-[200px]">
           <div className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-400">

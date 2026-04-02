@@ -128,6 +128,7 @@ export const userService = {
       
       const skilledProviders = providers.filter(p => p.serviceType === 'skilled');
       const unskilledProviders = providers.filter(p => p.serviceType === 'unskilled');
+      const rejectedProviders = providers.filter(p => p.accountStatus === 'rejected');
       const today = new Date();
       const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
       
@@ -142,6 +143,7 @@ export const userService = {
         totalUsers: customers.length + providers.length,
         skilledProviders: skilledProviders.length,
         unskilledProviders: unskilledProviders.length,
+        rejectedProviders: rejectedProviders.length,
         verifiedUsers: customers.length + providers.filter(p => p.isVerified).length,
         activeUsers: customers.length + providers.filter(p => p.status === 'active').length,
         newToday: newToday

@@ -16,6 +16,7 @@ import Settings from './pages/Settings/index';
 import Layout from './components/Layout/Layout';
 import Ads from './pages/Ads';
 import DBHealth from './pages/DBHealth';
+import RejectedApplications from './pages/RejectedApplications';
 
 
 function App() {
@@ -61,6 +62,7 @@ function App() {
           <Route path="/acceptance-logs" element={<AcceptanceLogs />} />
           <Route path="/acceptance-logs/:id" element={<LogDetails />} />
 
+          <Route path="/rejected-applications" element={<RejectedApplications />} />
           <Route path="settings" element={<Settings />} />
           <Route path="/db/health" element={<DBHealth />} />
 
