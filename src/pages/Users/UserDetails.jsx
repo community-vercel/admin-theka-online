@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { orderService } from '../../services/orderService';
+import { storage } from '../../services/firebase';
+import { ref, getBlob } from 'firebase/storage';
 import {
     HiArrowLeft,
     HiMail,
@@ -23,11 +25,39 @@ const UserDetails = () => {
     const { user } = location.state || {};
     const [activities, setActivities] = useState([]);
     const [loadingActivities, setLoadingActivities] = useState(true);
+    const [frontUrl, setFrontUrl] = useState('');
+    const [backUrl, setBackUrl] = useState('');
+    const [profileUrl, setProfileUrl] = useState('');
 
     useEffect(() => {
+        let objectUrls = [];
+
         if (user) {
             fetchActivities();
+            const getUrl = async (path, setter) => {
+                if (!path) return;
+                if (path.startsWith('http')) {
+                    setter(path);
+                } else {
+                    try {
+                        const blob = await getBlob(ref(storage, path));
+                        const objectUrl = URL.createObjectURL(blob);
+                        objectUrls.push(objectUrl);
+                        setter(objectUrl);
+                    } catch (error) {
+                        console.error('Error fetching Blob for', path, error);
+                        setter(path); // fallback
+                    }
+                }
+            };
+            getUrl(user.cnicFront, setFrontUrl);
+            getUrl(user.cnicBack, setBackUrl);
+            getUrl(user.profileImage, setProfileUrl);
         }
+
+        return () => {
+            objectUrls.forEach(url => URL.revokeObjectURL(url));
+        };
     }, [user]);
 
     const fetchActivities = async () => {
@@ -123,7 +153,7 @@ const UserDetails = () => {
                                 : 'bg-gradient-to-br from-blue-500 to-indigo-500'}
             `}>
                             {user.profileImage ? (
-                                <img src={user.profileImage} alt={user.name} className="h-full w-full object-cover rounded-3xl" />
+                                <img src={profileUrl || user.profileImage} alt={user.name} className="h-full w-full object-cover rounded-3xl" />
                             ) : (
                                 user.name?.charAt(0)?.toUpperCase()
                             )}
@@ -253,8 +283,8 @@ const UserDetails = () => {
                                     <div className="aspect-[1.6/1] rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 group relative">
                                         {user.cnicFront ? (
                                             <>
-                                                <img src={user.cnicFront} alt="CNIC Front" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                                <a href={user.cnicFront} target="_blank" rel="noreferrer" className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white font-bold transition-opacity">View Full Image</a>
+                                                <img src={frontUrl || user.cnicFront} alt="CNIC Front" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                                <a href={frontUrl || user.cnicFront} target="_blank" rel="noreferrer" className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white font-bold transition-opacity">View Full Image</a>
                                             </>
                                         ) : (
                                             <div className="h-full w-full flex items-center justify-center text-slate-400 italic text-sm">No front image uploaded</div>
@@ -267,8 +297,8 @@ const UserDetails = () => {
                                     <div className="aspect-[1.6/1] rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 group relative">
                                         {user.cnicBack ? (
                                             <>
-                                                <img src={user.cnicBack} alt="CNIC Back" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                                <a href={user.cnicBack} target="_blank" rel="noreferrer" className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white font-bold transition-opacity">View Full Image</a>
+                                                <img src={backUrl || user.cnicBack} alt="CNIC Back" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                                <a href={backUrl || user.cnicBack} target="_blank" rel="noreferrer" className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white font-bold transition-opacity">View Full Image</a>
                                             </>
                                         ) : (
                                             <div className="h-full w-full flex items-center justify-center text-slate-400 italic text-sm">No back image uploaded</div>

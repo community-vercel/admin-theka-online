@@ -4,11 +4,49 @@ import { HiArrowLeft, HiCheck, HiX } from 'react-icons/hi';
 import toast from 'react-hot-toast';
 import { serviceProviderService } from '../../services/serviceProviderService';
 import { notificationService } from '../../services/notificationService';
+import { storage } from '../../services/firebase';
+import { ref, getBlob } from 'firebase/storage';
+import { useState, useEffect } from 'react';
 
 const VerificationDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { provider } = location.state || {};
+  
+  const [frontUrl, setFrontUrl] = useState('');
+  const [backUrl, setBackUrl] = useState('');
+  const [profileUrl, setProfileUrl] = useState('');
+
+  useEffect(() => {
+    let objectUrls = [];
+
+    if (provider) {
+      const getUrl = async (path, setter) => {
+        if (!path) return;
+        if (path.startsWith('http')) {
+          setter(path);
+        } else {
+          try {
+            const blob = await getBlob(ref(storage, path));
+            const objectUrl = URL.createObjectURL(blob);
+            objectUrls.push(objectUrl);
+            setter(objectUrl);
+          } catch (error) {
+            console.error('Error fetching Blob for', path, error);
+            setter(path); // fallback
+          }
+        }
+      };
+
+      getUrl(provider.cnicFront, setFrontUrl);
+      getUrl(provider.cnicBack, setBackUrl);
+      getUrl(provider.profileImage, setProfileUrl);
+    }
+    
+    return () => {
+      objectUrls.forEach(url => URL.revokeObjectURL(url));
+    };
+  }, [provider]);
 
   if (!provider) {
     return (
@@ -113,7 +151,7 @@ const VerificationDetail = () => {
           {/* Profile Header */}
           <div className="flex items-start space-x-4 mb-6">
             <img
-              src={provider.profileImage}
+              src={profileUrl || provider.profileImage}
               alt={provider.name}
               className="w-24 h-24 rounded-full object-cover border-4 border-white shadow"
             />
@@ -177,9 +215,9 @@ const VerificationDetail = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-700 mb-2">CNIC Front</p>
-                <a href={provider.cnicFront} target="_blank" rel="noopener noreferrer">
+                <a href={frontUrl || provider.cnicFront} target="_blank" rel="noopener noreferrer">
                   <img
-                    src={provider.cnicFront}
+                    src={frontUrl || provider.cnicFront}
                     alt="CNIC Front"
                     className="w-full h-48 object-cover rounded-lg border border-gray-200 hover:border-blue-500 transition-colors cursor-pointer"
                   />
@@ -187,9 +225,9 @@ const VerificationDetail = () => {
               </div>
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-700 mb-2">CNIC Back</p>
-                <a href={provider.cnicBack} target="_blank" rel="noopener noreferrer">
+                <a href={backUrl || provider.cnicBack} target="_blank" rel="noopener noreferrer">
                   <img
-                    src={provider.cnicBack}
+                    src={backUrl || provider.cnicBack}
                     alt="CNIC Back"
                     className="w-full h-48 object-cover rounded-lg border border-gray-200 hover:border-blue-500 transition-colors cursor-pointer"
                   />
@@ -197,9 +235,9 @@ const VerificationDetail = () => {
               </div>
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-700 mb-2">Profile Image</p>
-                <a href={provider.profileImage} target="_blank" rel="noopener noreferrer">
+                <a href={profileUrl || provider.profileImage} target="_blank" rel="noopener noreferrer">
                   <img
-                    src={provider.profileImage}
+                    src={profileUrl || provider.profileImage}
                     alt="Profile"
                     className="w-full h-48 object-cover rounded-lg border border-gray-200 hover:border-blue-500 transition-colors cursor-pointer"
                   />
