@@ -215,33 +215,33 @@ const VerificationDetail = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-700 mb-2">CNIC Front</p>
-                <a href={frontUrl || provider.cnicFront} target="_blank" rel="noopener noreferrer">
+                <div className="relative group rounded-lg overflow-hidden border border-gray-200">
                   <img
                     src={frontUrl || provider.cnicFront}
                     alt="CNIC Front"
-                    className="w-full h-48 object-cover rounded-lg border border-gray-200 hover:border-blue-500 transition-colors cursor-pointer"
+                    className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
                   />
-                </a>
+                </div>
               </div>
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-700 mb-2">CNIC Back</p>
-                <a href={backUrl || provider.cnicBack} target="_blank" rel="noopener noreferrer">
+                <div className="relative group rounded-lg overflow-hidden border border-gray-200">
                   <img
                     src={backUrl || provider.cnicBack}
                     alt="CNIC Back"
-                    className="w-full h-48 object-cover rounded-lg border border-gray-200 hover:border-blue-500 transition-colors cursor-pointer"
+                    className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
                   />
-                </a>
+                </div>
               </div>
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-700 mb-2">Profile Image</p>
-                <a href={profileUrl || provider.profileImage} target="_blank" rel="noopener noreferrer">
+                <div className="relative group rounded-lg overflow-hidden border border-gray-200">
                   <img
                     src={profileUrl || provider.profileImage}
                     alt="Profile"
-                    className="w-full h-48 object-cover rounded-lg border border-gray-200 hover:border-blue-500 transition-colors cursor-pointer"
+                    className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
                   />
-                </a>
+                </div>
               </div>
             </div>
           </div>

@@ -282,10 +282,9 @@ const UserDetails = () => {
                                     <p className="text-xs font-bold text-slate-500 ml-1">CNIC - Front Side</p>
                                     <div className="aspect-[1.6/1] rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 group relative">
                                         {user.cnicFront ? (
-                                            <>
-                                                <img src={frontUrl || user.cnicFront} alt="CNIC Front" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                                <a href={frontUrl || user.cnicFront} target="_blank" rel="noreferrer" className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white font-bold transition-opacity">View Full Image</a>
-                                            </>
+                                            <div className="relative group w-full h-full">
+                                                <img src={frontUrl || user.cnicFront} alt="CNIC Front" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                            </div>
                                         ) : (
                                             <div className="h-full w-full flex items-center justify-center text-slate-400 italic text-sm">No front image uploaded</div>
                                         )}
@@ -296,10 +295,9 @@ const UserDetails = () => {
                                     <p className="text-xs font-bold text-slate-500 ml-1">CNIC - Back Side</p>
                                     <div className="aspect-[1.6/1] rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 group relative">
                                         {user.cnicBack ? (
-                                            <>
-                                                <img src={backUrl || user.cnicBack} alt="CNIC Back" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                                <a href={backUrl || user.cnicBack} target="_blank" rel="noreferrer" className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white font-bold transition-opacity">View Full Image</a>
-                                            </>
+                                            <div className="relative group w-full h-full">
+                                                <img src={backUrl || user.cnicBack} alt="CNIC Back" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                            </div>
                                         ) : (
                                             <div className="h-full w-full flex items-center justify-center text-slate-400 italic text-sm">No back image uploaded</div>
                                         )}
