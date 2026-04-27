@@ -1,30 +1,84 @@
-// src/components/Layout/Navbar.jsx
 import { useState, useEffect, useRef } from 'react';
-import {
-  HiSearch,
-  HiBell,
-  HiUserCircle,
-  HiMenu,
-  HiX,
-  HiChevronDown,
-  HiOutlineLogout,
-  HiOutlineCog,
-  HiOutlineUser,
-  HiOutlineSun,
-  HiOutlineMoon,
-  HiDotsVertical
+import { formatDistanceToNow } from 'date-fns';
+import { dashboardService } from '../../services/dashboardService';
+import { 
+  HiSearch, 
+  HiBell, 
+  HiMenu, 
+  HiX, 
+  HiChevronDown, 
+  HiChevronRight,
+  HiOutlineLogout, 
+  HiOutlineUser, 
+  HiDotsVertical,
+  HiUserAdd, 
+  HiCheckCircle,
+  HiClipboardList
 } from 'react-icons/hi';
+import { Link } from 'react-router-dom';
 
 const Navbar = ({ onMenuClick, isMobile, user = null }) => {
   const [search, setSearch] = useState('');
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [unreadNotifications, setUnreadNotifications] = useState(3);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const userMenuRef = useRef(null);
   const notificationsRef = useRef(null);
   const searchRef = useRef(null);
+
+  useEffect(() => {
+    fetchDynamicNotifications();
+    // Refresh every 5 minutes
+    const interval = setInterval(fetchDynamicNotifications, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchDynamicNotifications = async () => {
+    try {
+      setLoading(true);
+      const [registrations, acceptances] = await Promise.all([
+        dashboardService.getRecentRegistrations(),
+        dashboardService.getRecentAcceptances()
+      ]);
+
+      // Combine and format
+      const formattedNotifications = [
+        ...registrations.map(reg => ({
+          id: `reg-${reg.id}`,
+          title: `New ${reg.type === 'customer' ? 'Customer' : 'Provider'}`,
+          message: `${reg.name} from ${reg.city} registered`,
+          time: reg.date,
+          icon: <HiUserAdd className="h-4 w-4 text-blue-500" />,
+          link: reg.type === 'customer' ? `/users/${reg.id}` : `/verification`,
+          type: 'registration',
+          read: false
+        })),
+        ...acceptances.map(acc => ({
+          id: `acc-${acc.id}`,
+          title: 'New Acceptance',
+          message: `${acc.userName} accepted ${acc.providerName}'s ${acc.service} request`,
+          time: acc.acceptedAt,
+          icon: <HiCheckCircle className="h-4 w-4 text-green-500" />,
+          link: `/acceptance-logs/${acc.id}`,
+          type: 'acceptance',
+          read: false
+        }))
+      ]
+      .sort((a, b) => b.time - a.time)
+      .slice(0, 10);
+
+      setNotifications(formattedNotifications);
+      setUnreadNotifications(formattedNotifications.filter(n => !n.read).length);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // User data with fallback
   const userData = user || {
@@ -69,15 +123,8 @@ const Navbar = ({ onMenuClick, isMobile, user = null }) => {
     return () => clearTimeout(timeoutId);
   }, [search]);
 
-  // Notifications data
-  const notifications = [
-    { id: 1, title: 'New user registered', time: '5 min ago', read: false },
-    { id: 2, title: 'Payment received', time: '1 hour ago', read: false },
-    { id: 3, title: 'System update completed', time: '2 hours ago', read: true },
-    { id: 4, title: 'New message from John', time: '1 day ago', read: true },
-  ];
-
   const markAllAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     setUnreadNotifications(0);
   };
 
@@ -155,21 +202,61 @@ const Navbar = ({ onMenuClick, isMobile, user = null }) => {
             </button>
 
             {isNotificationsOpen && (
-              <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
+              <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                 <div className="p-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-                  <span className="font-bold text-slate-900 text-sm">Recent Notifications</span>
+                  <div>
+                    <span className="font-bold text-slate-900 text-sm">Recent Activity</span>
+                    <p className="text-[10px] text-slate-400 font-medium">Last 10 dynamic updates</p>
+                  </div>
                   {unreadNotifications > 0 && (
                     <button onClick={markAllAsRead} className="text-[10px] uppercase font-black text-indigo-500 hover:text-indigo-600 tracking-widest">Mark All Read</button>
                   )}
                 </div>
-                <div className="max-h-80 overflow-y-auto">
-                  {notifications.map(n => (
-                    <div key={n.id} className={`p-4 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 ${!n.read ? 'bg-indigo-50/30' : ''}`}>
-                      <p className="text-sm text-slate-700 font-semibold">{n.title}</p>
-                      <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-bold">{n.time}</p>
+                <div className="max-h-96 overflow-y-auto">
+                  {loading && notifications.length === 0 ? (
+                    <div className="p-8 text-center">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-500 mx-auto mb-2"></div>
+                      <p className="text-xs text-slate-500">Checking for updates...</p>
                     </div>
+                  ) : notifications.length === 0 ? (
+                    <div className="p-8 text-center text-slate-400">
+                      <HiBell className="h-8 w-8 mx-auto mb-2 opacity-20" />
+                      <p className="text-xs">No recent activity</p>
+                    </div>
+                  ) : (
+                    notifications.map(n => (
+                      <Link 
+                        key={n.id} 
+                        to={n.link}
+                        onClick={() => setIsNotificationsOpen(false)}
+                        className={`block p-4 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 ${!n.read ? 'bg-indigo-50/20' : ''}`}
+                      >
+                        <div className="flex gap-3">
+                          <div className="mt-1 h-8 w-8 rounded-lg bg-white border border-slate-100 shadow-sm flex items-center justify-center flex-shrink-0">
+                            {n.icon}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-start mb-0.5">
+                              <p className="text-[13px] text-slate-900 font-bold leading-tight">{n.title}</p>
+                              <HiChevronRight className="h-4 w-4 text-slate-300" />
+                            </div>
+                            <p className="text-xs text-slate-500 leading-normal line-clamp-2">{n.message}</p>
+                            <p className="text-[10px] text-slate-400 mt-1.5 uppercase tracking-wider font-bold">
+                              {formatDistanceToNow(new Date(n.time), { addSuffix: true })}
+                            </p>
+                          </div>
+                        </div>
+                      </Link>
+                    )
                   ))}
                 </div>
+                <Link 
+                  to="/acceptance-logs" 
+                  onClick={() => setIsNotificationsOpen(false)}
+                  className="p-3 bg-slate-50 text-center block text-[10px] font-black uppercase text-slate-400 hover:text-indigo-500 transition-colors tracking-[0.2em]"
+                >
+                  View All Activity Logs
+                </Link>
               </div>
             )}
           </div>
