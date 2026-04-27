@@ -4,49 +4,14 @@ import { HiArrowLeft, HiCheck, HiX } from 'react-icons/hi';
 import toast from 'react-hot-toast';
 import { serviceProviderService } from '../../services/serviceProviderService';
 import { notificationService } from '../../services/notificationService';
-import { storage } from '../../services/firebase';
-import { ref, getBlob } from 'firebase/storage';
 import { useState, useEffect } from 'react';
+import StorageImage from '../../components/Common/StorageImage';
 
 const VerificationDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { provider } = location.state || {};
   
-  const [frontUrl, setFrontUrl] = useState('');
-  const [backUrl, setBackUrl] = useState('');
-  const [profileUrl, setProfileUrl] = useState('');
-
-  useEffect(() => {
-    let objectUrls = [];
-
-    if (provider) {
-      const getUrl = async (path, setter) => {
-        if (!path) return;
-        if (path.startsWith('http')) {
-          setter(path);
-        } else {
-          try {
-            const blob = await getBlob(ref(storage, path));
-            const objectUrl = URL.createObjectURL(blob);
-            objectUrls.push(objectUrl);
-            setter(objectUrl);
-          } catch (error) {
-            console.error('Error fetching Blob for', path, error);
-            setter(path); // fallback
-          }
-        }
-      };
-
-      getUrl(provider.cnicFront, setFrontUrl);
-      getUrl(provider.cnicBack, setBackUrl);
-      getUrl(provider.profileImage, setProfileUrl);
-    }
-    
-    return () => {
-      objectUrls.forEach(url => URL.revokeObjectURL(url));
-    };
-  }, [provider]);
 
   if (!provider) {
     return (
@@ -150,8 +115,8 @@ const VerificationDetail = () => {
         <div className="p-6">
           {/* Profile Header */}
           <div className="flex items-start space-x-4 mb-6">
-            <img
-              src={profileUrl || provider.profileImage}
+            <StorageImage
+              src={provider.profileImage}
               alt={provider.name}
               className="w-24 h-24 rounded-full object-cover border-4 border-white shadow"
             />
@@ -216,8 +181,8 @@ const VerificationDetail = () => {
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-700 mb-2">CNIC Front</p>
                 <div className="relative group rounded-lg overflow-hidden border border-gray-200">
-                  <img
-                    src={frontUrl || provider.cnicFront}
+                  <StorageImage
+                    src={provider.cnicFront}
                     alt="CNIC Front"
                     className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
                   />
@@ -226,8 +191,8 @@ const VerificationDetail = () => {
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-700 mb-2">CNIC Back</p>
                 <div className="relative group rounded-lg overflow-hidden border border-gray-200">
-                  <img
-                    src={backUrl || provider.cnicBack}
+                  <StorageImage
+                    src={provider.cnicBack}
                     alt="CNIC Back"
                     className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
                   />
@@ -236,8 +201,8 @@ const VerificationDetail = () => {
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-700 mb-2">Profile Image</p>
                 <div className="relative group rounded-lg overflow-hidden border border-gray-200">
-                  <img
-                    src={profileUrl || provider.profileImage}
+                  <StorageImage
+                    src={provider.profileImage}
                     alt="Profile"
                     className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
                   />

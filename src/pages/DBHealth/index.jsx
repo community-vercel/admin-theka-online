@@ -28,7 +28,7 @@ import { getDBHealthMetrics, getHealthHistory } from '../../services/dbHealthSer
 import { dashboardService } from '../../services/dashboardService';
 import { customerService } from '../../services/customerService';
 import { serviceProviderService } from '../../services/serviceProviderService';
-import { adsService } from '../../services/adsService';
+import { promotionService } from '../../services/promotionService';
 import { settingsService } from '../../services/settingsService';
 import { userService } from '../../services/userService';
 import toast from 'react-hot-toast';
@@ -81,12 +81,11 @@ const DBHealth = () => {
       // Get user stats
       const userStats = await userService.getUserStats();
       
-      // Get ad stats if available
-      let adStats = { total: 0, active: 0, inactive: 0, totalClicks: 0, totalImpressions: 0, ctr: 0 };
+      let promotionStats = { total: 0, active: 0, inactive: 0, totalClicks: 0, totalImpressions: 0, ctr: 0 };
       try {
-        adStats = await adsService.getAdStats();
+        promotionStats = await promotionService.getPromotionStats();
       } catch (error) {
-        console.log('Ad stats not available:', error.message);
+        console.log('Promotion stats not available:', error.message);
       }
       
       // Get service provider stats
@@ -111,7 +110,7 @@ const DBHealth = () => {
       return {
         dashboard: dashboardStats,
         users: userStats,
-        ads: adStats,
+        promotions: promotionStats,
         providers: providerStats,
         cityDistribution,
         categoryDistribution,
@@ -132,7 +131,7 @@ const DBHealth = () => {
       const collections = [
         { name: 'Customers', service: customerService, method: 'getCustomers' },
         { name: 'ServiceProviders', service: serviceProviderService, method: 'getServiceProviders' },
-        { name: 'Ads', service: adsService, method: 'getAds' }
+        { name: 'Promotions', service: promotionService, method: 'getPromotions' }
       ];
       
       const collectionData = [];
@@ -282,7 +281,7 @@ const DBHealth = () => {
     switch (collectionName) {
       case 'Customers': return <HiUsers className="h-4 w-4 text-blue-600" />;
       case 'ServiceProviders': return <HiUserGroup className="h-4 w-4 text-purple-600" />;
-      case 'Ads': return <HiPhotograph className="h-4 w-4 text-green-600" />;
+      case 'Promotions': return <HiPhotograph className="h-4 w-4 text-green-600" />;
       case 'Cities': return <HiCollection className="h-4 w-4 text-yellow-600" />;
       case 'ServiceCategories': return <HiCollection className="h-4 w-4 text-indigo-600" />;
       default: return <HiArchive className="h-4 w-4 text-gray-600" />;
@@ -458,19 +457,19 @@ const DBHealth = () => {
             </p>
           </div>
 
-          {/* Ads Performance */}
+          {/* Promotions Performance */}
           <div className="bg-white rounded-lg border border-gray-200 p-5">
             <div className="flex items-center justify-between mb-4">
               <div className="p-2 bg-green-100 rounded-lg">
                 <HiPhotograph className="h-6 w-6 text-green-600" />
               </div>
               <span className="text-sm font-medium text-gray-900">
-                {realStats.ads?.ctr || 0}%
+                {realStats.promotions?.ctr || 0}%
               </span>
             </div>
-            <h3 className="font-semibold text-gray-900">Ads Performance</h3>
+            <h3 className="font-semibold text-gray-900">Promotions Performance</h3>
             <p className="text-sm text-gray-600 mt-1">
-              {realStats.ads?.totalClicks || 0} clicks / {realStats.ads?.totalImpressions || 0} impressions
+              {realStats.promotions?.totalClicks || 0} clicks / {realStats.promotions?.totalImpressions || 0} impressions
             </p>
           </div>
 

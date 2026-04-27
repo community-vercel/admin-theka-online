@@ -13,6 +13,7 @@ import {
   HiStar,
   HiMap
 } from 'react-icons/hi';
+import StorageImage from '../components/Common/StorageImage';
 import {
   LineChart,
   Line,
@@ -538,7 +539,11 @@ const Dashboard = () => {
                     <div className="flex items-center gap-3">
                       <div className={`h-11 w-11 rounded-xl flex items-center justify-center text-sm font-black border overflow-hidden ${activeReviewTab === 'customer' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}`}>
                         {review.imageUrl ? (
-                          <img src={review.imageUrl} alt={review.reviewerName} className="h-full w-full object-cover" />
+                          <StorageImage 
+                            src={review.imageUrl} 
+                            alt={review.reviewerName} 
+                            className="h-full w-full object-cover" 
+                          />
                         ) : (
                           review.reviewerName?.charAt(0)
                         )}

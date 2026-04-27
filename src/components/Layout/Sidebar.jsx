@@ -34,7 +34,7 @@ const Sidebar = ({ isMobile, onItemClick, isCollapsed = false, onToggleCollapse 
     { path: '/users', icon: <HiUsers />, label: 'Users Management' },
     { path: '/verification', icon: <HiCheckCircle />, label: 'Verification', badge: '' },
     { path: '/reviews', icon: <HiCheckCircle />, label: 'Reviews' },
-    { path: '/ads', icon: <HiPhotograph />, label: 'Ads Management' },
+    { path: '/promotions', icon: <HiPhotograph />, label: 'Promotions' },
     { path: '/acceptance-logs', icon: <HiClipboardList />, label: 'Acceptance Logs' },
     { path: '/settings', icon: <HiCog />, label: 'Settings' },
     { path: '/db/health', icon: <HiDatabase />, label: 'DB Health' },

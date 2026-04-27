@@ -16,6 +16,7 @@ import {
     HiMail,
     HiPhone
 } from 'react-icons/hi';
+import StorageImage from '../../components/Common/StorageImage';
 
 const ReviewDetails = () => {
     const { id } = useParams();
@@ -140,7 +141,7 @@ const ReviewDetails = () => {
                     <div className="card-premium overflow-hidden group">
                         <div className="aspect-square bg-slate-100 relative">
                             {review.imageUrl ? (
-                                <img
+                                <StorageImage
                                     src={review.imageUrl}
                                     alt={review.service}
                                     className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700"
@@ -227,7 +228,11 @@ const ReviewDetails = () => {
                             <div className="flex items-center gap-4 mb-6">
                                 <div className="h-16 w-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 text-2xl font-black shadow-sm overflow-hidden">
                                     {review.userProfileImage ? (
-                                        <img src={review.userProfileImage} alt={review.userName} className="h-full w-full object-cover" />
+                                        <StorageImage 
+                                            src={review.userProfileImage} 
+                                            alt={review.userName} 
+                                            className="h-full w-full object-cover" 
+                                        />
                                     ) : (
                                         review.userName?.charAt(0) || <HiUser />
                                     )}
@@ -254,7 +259,11 @@ const ReviewDetails = () => {
                             <div className="flex items-center gap-4 mb-6">
                                 <div className="h-16 w-16 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 text-2xl font-black shadow-sm overflow-hidden">
                                     {review.providerProfileImage ? (
-                                        <img src={review.providerProfileImage} alt={review.providerName} className="h-full w-full object-cover" />
+                                        <StorageImage 
+                                            src={review.providerProfileImage} 
+                                            alt={review.providerName} 
+                                            className="h-full w-full object-cover" 
+                                        />
                                     ) : (
                                         review.providerName?.charAt(0) || <HiBriefcase />
                                     )}

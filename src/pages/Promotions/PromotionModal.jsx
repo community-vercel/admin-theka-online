@@ -1,6 +1,7 @@
-// src/pages/Ads/AdModal.jsx
+// src/pages/Promotions/PromotionModal.jsx
 import { useState, useEffect } from 'react';
 import { HiX, HiColorSwatch, HiLink, HiInformationCircle } from 'react-icons/hi';
+import StorageImage from '../../components/Common/StorageImage';
 
 // Predefined color options
 const COLOR_OPTIONS = [
@@ -23,7 +24,7 @@ const TEXT_COLORS = [
   { name: 'Blue', value: '#1E40AF' },
 ];
 
-const AdModal = ({ ad, onClose, onSave }) => {
+const PromotionModal = ({ ad, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -80,12 +81,12 @@ const AdModal = ({ ad, onClose, onSave }) => {
     e.preventDefault();
 
     if (!formData.title.trim()) {
-      alert('Please enter ad title');
+      alert('Please enter title');
       return;
     }
 
     if (!formData.description.trim()) {
-      alert('Please enter ad description');
+      alert('Please enter description');
       return;
     }
 
@@ -104,7 +105,7 @@ const AdModal = ({ ad, onClose, onSave }) => {
       <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-xl font-semibold text-gray-900">
-            {ad ? 'Edit Ad' : 'Create New Ad'}
+            {ad ? 'Edit Promotion' : 'Create New Promotion'}
           </h2>
           <button
             onClick={onClose}
@@ -117,50 +118,44 @@ const AdModal = ({ ad, onClose, onSave }) => {
 
         <form onSubmit={handleSubmit}>
           <div className="p-6 space-y-6">
-            {/* Ad Preview */}
+            {/* Preview */}
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="font-medium text-gray-700 mb-3 flex items-center space-x-2">
                 <HiInformationCircle className="h-5 w-5 text-blue-600" />
-                <span>Ad Preview (300×50 pixels)</span>
+                <span>Live Preview</span>
               </h3>
               <div className="flex items-center justify-center">
                 <div
                   className="w-300 h-50 rounded-lg shadow-md flex items-center overflow-hidden p-2"
                   style={{
                     backgroundColor: formData.bgColor,
-                    color: formData.textColor
+                    color: formData.textColor,
+                    width: '300px',
+                    height: '50px'
                   }}
                 >
                   {formData.companyLogo && (
                     <div className="h-10 w-10 shrink-0 bg-white/20 rounded-md overflow-hidden mr-3">
-                      <img src={formData.companyLogo} alt="Logo" className="h-full w-full object-contain" />
+                      <StorageImage src={formData.companyLogo} alt="Logo" className="h-full w-full object-contain" />
                     </div>
                   )}
                   <div className="flex flex-col min-w-0">
                     <div className="text-xs font-bold truncate max-w-full">
-                      {formData.title || 'Ad Title'}
+                      {formData.title || 'Title'}
                     </div>
                     <div className="text-[10px] truncate max-w-full mt-0.5 opacity-90">
-                      {formData.description || 'Ad description will appear here'}
+                      {formData.description || 'Description will appear here'}
                     </div>
-                    {formData.details && (
-                      <div className="text-[8px] opacity-70 mt-0.5 truncate">
-                        {formData.details}
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-gray-500 mt-2 text-center">
-                This is how your 300×50 pixel ad will appear on mobile
-              </p>
             </div>
 
-            {/* Ad Details */}
+            {/* Form Details */}
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Ad Title *
+                  Title *
                 </label>
                 <input
                   type="text"
@@ -168,14 +163,10 @@ const AdModal = ({ ad, onClose, onSave }) => {
                   value={formData.title}
                   onChange={handleChange}
                   className="input-field w-full"
-                  placeholder="Enter ad title (short and catchy)"
                   required
                   disabled={loading}
                   maxLength={30}
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Max 30 characters (appears in bold)
-                </p>
               </div>
 
               <div>
@@ -186,33 +177,11 @@ const AdModal = ({ ad, onClose, onSave }) => {
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  className="input-field w-full h-50 resize-none"
-                  placeholder="Enter ad description"
+                  className="input-field w-full h-20 resize-none"
                   required
                   disabled={loading}
                   maxLength={60}
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Max 60 characters (appears in regular text)
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Additional Details
-                </label>
-                <textarea
-                  name="details"
-                  value={formData.details}
-                  onChange={handleChange}
-                  className="input-field w-full h-16 resize-none"
-                  placeholder="Additional information or call-to-action"
-                  disabled={loading}
-                  maxLength={40}
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Max 40 characters (smaller text, optional)
-                </p>
               </div>
 
               <div>
@@ -231,43 +200,37 @@ const AdModal = ({ ad, onClose, onSave }) => {
                     disabled={loading}
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Where users will be redirected when they click the ad
-                </p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Company Logo URL
+                  Logo / Image URL or Path
                 </label>
                 <div className="flex items-center space-x-2">
                   <div className="h-10 w-10 rounded bg-gray-100 flex items-center justify-center text-gray-400 overflow-hidden shrink-0">
                     {formData.companyLogo ? (
-                      <img src={formData.companyLogo} alt="Preview" className="h-full w-full object-contain" />
+                      <StorageImage src={formData.companyLogo} alt="Preview" className="h-full w-full object-contain" />
                     ) : (
                       <HiX className="h-5 w-5 opacity-20" />
                     )}
                   </div>
                   <input
-                    type="url"
+                    type="text"
                     name="companyLogo"
                     value={formData.companyLogo}
                     onChange={handleChange}
                     className="input-field w-full"
-                    placeholder="https://example.com/logo.png"
+                    placeholder="URL or storage path"
                     disabled={loading}
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Square or horizontal logo looks best. Leave empty to hide.
-                </p>
               </div>
 
               {/* Color Selection */}
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Background Color *
+                    Background Color
                   </label>
                   <div className="flex flex-wrap gap-2 mb-3">
                     {COLOR_OPTIONS.map((color) => (
@@ -275,53 +238,16 @@ const AdModal = ({ ad, onClose, onSave }) => {
                         key={color.value}
                         type="button"
                         onClick={() => handleColorSelect(color.value, 'bgColor')}
-                        className={`w-8 h-8 rounded-full border-2 ${formData.bgColor === color.value
-                            ? 'border-blue-500 ring-2 ring-blue-200'
-                            : 'border-gray-300'
-                          }`}
+                        className={`w-6 h-6 rounded-full border ${formData.bgColor === color.value ? 'ring-2 ring-blue-500' : 'border-gray-300'}`}
                         style={{ backgroundColor: color.value }}
-                        title={color.name}
                       />
                     ))}
-                  </div>
-
-                  <div className="flex items-center space-x-3">
-                    <input
-                      type="color"
-                      value={formData.bgColor}
-                      onChange={(e) => handleColorSelect(e.target.value, 'bgColor')}
-                      className="w-10 h-10 cursor-pointer"
-                      title="Pick custom color"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="text"
-                          value={customBgColor}
-                          onChange={(e) => setCustomBgColor(e.target.value)}
-                          placeholder="#FFFFFF or rgb(255,255,255)"
-                          className="input-field text-sm"
-                          disabled={loading}
-                        />
-                        <button
-                          type="button"
-                          onClick={handleCustomColor}
-                          className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded hover:bg-blue-200"
-                          disabled={loading}
-                        >
-                          Set
-                        </button>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Current: {formData.bgColor}
-                      </p>
-                    </div>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Text Color *
+                    Text Color
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {TEXT_COLORS.map((color) => (
@@ -329,62 +255,27 @@ const AdModal = ({ ad, onClose, onSave }) => {
                         key={color.value}
                         type="button"
                         onClick={() => handleColorSelect(color.value, 'textColor')}
-                        className={`w-8 h-8 rounded-full border-2 ${formData.textColor === color.value
-                            ? 'border-blue-500 ring-2 ring-blue-200'
-                            : 'border-gray-300'
-                          } flex items-center justify-center`}
+                        className={`w-6 h-6 rounded-full border ${formData.textColor === color.value ? 'ring-2 ring-blue-500' : 'border-gray-300'}`}
                         style={{ backgroundColor: color.value }}
-                        title={color.name}
-                      >
-                        {color.value === '#FFFFFF' && (
-                          <div className="w-3 h-3 border border-gray-400 rounded-full"></div>
-                        )}
-                      </button>
+                      />
                     ))}
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Current: {formData.textColor}
-                  </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Position
-                  </label>
-                  <select
-                    name="position"
-                    value={formData.position}
-                    onChange={handleChange}
-                    className="input-field w-full"
-                    disabled={loading}
-                  >
-                    <option value="mobile">Mobile Banner</option>
-                    <option value="home">Home Page</option>
-                    <option value="category">Category Page</option>
-                    <option value="search">Search Results</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="flex items-center space-x-2 mt-6">
-                    <input
-                      type="checkbox"
-                      name="isActive"
-                      checked={formData.isActive}
-                      onChange={handleChange}
-                      className="h-4 w-4 text-blue-600 rounded"
-                      disabled={loading}
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      Active Ad
-                    </span>
-                  </label>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Inactive ads won't be shown to users
-                  </p>
-                </div>
+              <div className="flex items-center space-x-2 pt-2">
+                <input
+                  type="checkbox"
+                  name="isActive"
+                  id="isActive"
+                  checked={formData.isActive}
+                  onChange={handleChange}
+                  className="h-4 w-4 text-blue-600 rounded"
+                  disabled={loading}
+                />
+                <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
+                  Active
+                </label>
               </div>
             </div>
           </div>
@@ -403,14 +294,7 @@ const AdModal = ({ ad, onClose, onSave }) => {
               className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center space-x-2"
               disabled={loading}
             >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  <span>Saving...</span>
-                </>
-              ) : (
-                <span>{ad ? 'Update Ad' : 'Create Ad'}</span>
-              )}
+              {loading ? 'Saving...' : (ad ? 'Update' : 'Create')}
             </button>
           </div>
         </form>
@@ -419,4 +303,4 @@ const AdModal = ({ ad, onClose, onSave }) => {
   );
 };
 
-export default AdModal;
+export default PromotionModal;

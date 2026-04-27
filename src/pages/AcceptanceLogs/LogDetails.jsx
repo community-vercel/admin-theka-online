@@ -7,6 +7,7 @@ import {
     HiCalendar, HiCurrencyDollar, HiCheckCircle, HiStar,
     HiPhone, HiMail, HiPhotograph, HiClock, HiLightningBolt
 } from 'react-icons/hi';
+import StorageImage from '../../components/Common/StorageImage';
 import toast from 'react-hot-toast';
 
 const LogDetails = () => {
@@ -94,7 +95,11 @@ const LogDetails = () => {
                         <div className="flex flex-col items-center text-center">
                             <div className="h-24 w-24 rounded-3xl bg-indigo-50 overflow-hidden border-4 border-white shadow-xl mb-4">
                                 {log.userProfileImage ? (
-                                    <img src={log.userProfileImage} alt={log.userName} className="w-full h-full object-cover" />
+                                    <StorageImage 
+                                        src={log.userProfileImage} 
+                                        alt={log.userName} 
+                                        className="w-full h-full object-cover" 
+                                    />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-3xl font-black text-indigo-300">
                                         {log.userName?.charAt(0)}
@@ -124,7 +129,11 @@ const LogDetails = () => {
                         <div className="flex flex-col items-center text-center">
                             <div className="h-24 w-24 rounded-3xl bg-purple-50 overflow-hidden border-4 border-white shadow-xl mb-4">
                                 {log.providerProfileImage ? (
-                                    <img src={log.providerProfileImage} alt={log.providerName} className="w-full h-full object-cover" />
+                                    <StorageImage 
+                                        src={log.providerProfileImage} 
+                                        alt={log.providerName} 
+                                        className="w-full h-full object-cover" 
+                                    />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-3xl font-black text-purple-300">
                                         {log.providerName?.charAt(0)}
@@ -223,7 +232,11 @@ const LogDetails = () => {
                                     <HiPhotograph /> Visual Evidence
                                 </h4>
                                 <div className="group relative w-full aspect-video rounded-3xl overflow-hidden border-4 border-white shadow-xl">
-                                    <img src={log.imageUrl} alt="Job" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                    <StorageImage 
+                                        src={log.imageUrl} 
+                                        alt="Job" 
+                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                                    />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                                 </div>
                             </div>

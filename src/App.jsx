@@ -14,7 +14,7 @@ import AcceptanceLogs from './pages/AcceptanceLogs';
 import LogDetails from './pages/AcceptanceLogs/LogDetails';
 import Settings from './pages/Settings/index';
 import Layout from './components/Layout/Layout';
-import Ads from './pages/Ads';
+import Promotions from './pages/Promotions';
 import DBHealth from './pages/DBHealth';
 import RejectedApplications from './pages/RejectedApplications';
 
@@ -58,7 +58,7 @@ function App() {
           <Route path="verification/:requestId" element={<VerificationDetails />} />
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/reviews/:id" element={<ReviewDetails />} />
-          <Route path="/ads" element={<Ads />} />
+          <Route path="/promotions" element={<Promotions />} />
           <Route path="/acceptance-logs" element={<AcceptanceLogs />} />
           <Route path="/acceptance-logs/:id" element={<LogDetails />} />
 

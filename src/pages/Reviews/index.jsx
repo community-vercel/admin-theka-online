@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { dashboardService } from '../../services/dashboardService';
 import { HiCheckCircle, HiSearch, HiFilter, HiArrowRight, HiChatAlt2, HiUserCircle, HiStar } from 'react-icons/hi';
+import StorageImage from '../../components/Common/StorageImage';
 import toast from 'react-hot-toast';
 
 const ReviewsPage = () => {
@@ -149,7 +150,11 @@ const ReviewsPage = () => {
                                 <div className="flex items-center gap-3">
                                     <div className={`h-12 w-12 rounded-2xl flex items-center justify-center border shadow-sm overflow-hidden ${activeTab === 'customer' ? 'bg-indigo-50 border-indigo-100 text-indigo-600' : 'bg-emerald-50 border-emerald-100 text-emerald-600'}`}>
                                         {review.imageUrl ? (
-                                            <img src={review.imageUrl} alt={review.reviewerName} className="h-full w-full object-cover" />
+                                            <StorageImage 
+                                                src={review.imageUrl} 
+                                                alt={review.reviewerName} 
+                                                className="h-full w-full object-cover" 
+                                            />
                                         ) : (
                                             review.reviewerName?.charAt(0)
                                         )}
