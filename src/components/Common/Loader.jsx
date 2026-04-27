@@ -1,5 +1,5 @@
 // src/components/Common/Loader.jsx
-const Loader = ({ size = 'md', text = 'Loading...' }) => {
+const Loader = ({ size = 'md', text = 'Loading.....' }) => {
   const sizeClasses = {
     sm: 'h-6 w-6',
     md: 'h-8 w-8',
